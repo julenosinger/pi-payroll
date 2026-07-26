@@ -1,0 +1,1768 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Pi Payroll — Pi Network Payroll System</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><text y='26' font-size='28'>π</text></svg>" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css" />
+<script src="https://sdk.minepi.com/pi-sdk.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+:root{
+  --pi-purple:#6C3CE1;--pi-purple-light:#8B5CF6;--pi-purple-pale:#EDE9FF;--pi-purple-mid:#4F29B8;
+  --pi-amber:#D97706;--pi-amber-light:#FCD34D;--pi-amber-pale:#FFFBEB;
+  --pi-dark:#1C1033;--pi-dark2:#2D1E5C;
+  --success:#059669;--success-bg:#ECFDF5;--success-text:#065F46;
+  --danger:#DC2626;--danger-bg:#FEE2E2;
+  --warning-bg:#FFFBEB;--warning-text:#92400E;
+  --surface-0:#F5F4F1;--surface-1:#F0EEE9;--surface-2:#FFFFFF;
+  --text-primary:#1A1916;--text-secondary:#6B6A65;--text-muted:#9B9A96;
+  --border:rgba(0,0,0,0.09);--border-strong:rgba(0,0,0,0.15);
+  --radius:8px;
+}
+
+@media(prefers-color-scheme:dark){
+  :root{
+    --pi-purple-pale:#2A1F54;--pi-amber-pale:#2A1F00;
+    --surface-0:#111010;--surface-1:#1A1917;--surface-2:#242320;
+    --text-primary:#F0EEE8;--text-secondary:#9B9A96;--text-muted:#6B6A65;
+    --border:rgba(255,255,255,0.08);--border-strong:rgba(255,255,255,0.14);
+    --success-bg:#052E1C;--success-text:#6EE7B7;
+    --warning-bg:#2A1800;--warning-text:#FCD34D;--danger-bg:#2D0A0A;
+  }
+}
+
+html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;background:var(--surface-0);color:var(--text-primary);font-size:14px;line-height:1.5}
+
+.app{display:flex;height:100vh;overflow:hidden}
+
+/* SIDEBAR */
+.sidebar{width:220px;background:var(--pi-dark);display:flex;flex-direction:column;flex-shrink:0;overflow-y:auto}
+.sidebar-logo{padding:22px 18px 14px;border-bottom:0.5px solid rgba(255,255,255,0.08)}
+.logo-row{display:flex;align-items:center;gap:10px}
+.logo-pi{font-size:28px;font-weight:700;color:var(--pi-amber-light);font-family:'Georgia',serif;line-height:1}
+.logo-text{font-size:15px;font-weight:600;color:#fff;letter-spacing:-0.01em}
+.logo-sub{font-size:10px;color:rgba(255,255,255,0.38);margin-top:2px}
+.nav{flex:1;padding:14px 10px}
+.nav-section{font-size:10px;color:rgba(255,255,255,0.28);text-transform:uppercase;letter-spacing:0.1em;padding:12px 8px 5px;font-weight:600}
+.nav-item{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:var(--radius);cursor:pointer;font-size:13px;color:rgba(255,255,255,0.55);transition:background 0.12s,color 0.12s;margin-bottom:2px;border:none;background:none;width:100%;text-align:left;font-family:inherit}
+.nav-item:hover{background:rgba(255,255,255,0.07);color:#fff}
+.nav-item.active{background:var(--pi-purple);color:#fff}
+.nav-item i{font-size:17px;flex-shrink:0}
+.sidebar-footer{padding:12px 10px 16px;border-top:0.5px solid rgba(255,255,255,0.08)}
+.user-row{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:var(--radius);background:rgba(255,255,255,0.06)}
+.user-av{width:30px;height:30px;border-radius:50%;background:var(--pi-purple);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff;flex-shrink:0}
+.user-name{font-size:12px;color:#fff;font-weight:500}
+.user-role{font-size:10px;color:rgba(255,255,255,0.38);margin-top:1px}
+
+/* MAIN */
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0}
+.topbar{background:var(--surface-2);border-bottom:0.5px solid var(--border);padding:0 28px;height:56px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.page-title{font-size:15px;font-weight:600;color:var(--text-primary)}
+.topbar-right{display:flex;align-items:center;gap:10px}
+.badge-network{display:flex;align-items:center;gap:6px;background:var(--pi-amber-pale);border:0.5px solid #FDE68A;color:var(--pi-amber);padding:5px 12px;border-radius:20px;font-size:12px;font-weight:500}
+.net-dot{width:7px;height:7px;border-radius:50%;background:var(--success);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.35}}
+.content{flex:1;overflow-y:auto;padding:24px 28px}
+
+/* PANELS */
+.panel{display:none}
+.panel.active{display:block}
+
+/* STATS */
+.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px}
+.stat-card{background:var(--surface-2);border:0.5px solid var(--border);border-radius:12px;padding:16px 18px}
+.stat-label{font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.06em;font-weight:600;margin-bottom:8px}
+.stat-value{font-size:24px;font-weight:600;color:var(--text-primary);font-family:'SF Mono','Fira Code',monospace;line-height:1.1}
+.stat-sub{font-size:11px;color:var(--text-muted);margin-top:5px}
+.stat-up{color:var(--success)}
+.stat-down{color:var(--danger)}
+
+/* CARDS */
+.card{background:var(--surface-2);border:0.5px solid var(--border);border-radius:12px;padding:18px 20px}
+.card+.card{margin-top:14px}
+.section-title{font-size:13px;font-weight:600;color:var(--text-secondary);margin-bottom:14px;display:flex;align-items:center;justify-content:space-between}
+
+/* TABLE */
+.table-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{text-align:left;padding:9px 14px;font-size:10px;font-weight:700;color:var(--text-muted);border-bottom:0.5px solid var(--border);text-transform:uppercase;letter-spacing:0.06em;white-space:nowrap}
+td{padding:11px 14px;border-bottom:0.5px solid var(--border);color:var(--text-primary);vertical-align:middle}
+tr:last-child td{border-bottom:none}
+tbody tr:hover td{background:var(--surface-0)}
+
+/* PILLS */
+.pill{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;white-space:nowrap}
+.pill-success{background:var(--success-bg);color:var(--success-text)}
+.pill-warning{background:var(--warning-bg);color:var(--warning-text)}
+.pill-purple{background:var(--pi-purple-pale);color:var(--pi-purple)}
+.pill-gray{background:var(--surface-1);color:var(--text-secondary)}
+.pill-danger{background:var(--danger-bg);color:var(--danger)}
+
+/* BUTTONS */
+.btn{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:var(--radius);font-size:13px;font-weight:500;cursor:pointer;border:0.5px solid var(--border-strong);background:transparent;color:var(--text-primary);transition:background 0.12s,border-color 0.12s;font-family:inherit;text-decoration:none}
+.btn:hover{background:var(--surface-1)}
+.btn-primary{background:var(--pi-purple);color:#fff;border-color:var(--pi-purple)}
+.btn-primary:hover{background:var(--pi-purple-mid);border-color:var(--pi-purple-mid)}
+.btn-sm{padding:6px 12px;font-size:12px}
+.btn-amber{background:var(--pi-amber-light);color:#1A1000;border:none;font-weight:600}
+.btn-amber:hover{background:#FDE68A}
+.btn-group{display:flex;gap:8px;flex-wrap:wrap}
+
+/* FORM */
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:16px}
+.form-group label{font-size:12px;color:var(--text-secondary);display:block;margin-bottom:6px;font-weight:600}
+.input{width:100%;padding:9px 12px;border:0.5px solid var(--border-strong);border-radius:var(--radius);font-size:13px;background:var(--surface-2);color:var(--text-primary);font-family:inherit;transition:border-color 0.12s,box-shadow 0.12s;outline:none}
+.input:focus{border-color:var(--pi-purple);box-shadow:0 0 0 3px rgba(108,60,225,0.12)}
+select.input{cursor:pointer}
+
+/* UPLOAD */
+.upload-zone{border:1.5px dashed var(--border-strong);border-radius:12px;padding:40px 24px;text-align:center;cursor:pointer;transition:all 0.15s;margin-bottom:18px}
+.upload-zone:hover{border-color:var(--pi-purple);background:var(--pi-purple-pale)}
+.upload-zone i{font-size:36px;color:var(--text-muted);margin-bottom:10px;display:block}
+.upload-title{font-size:14px;font-weight:600;color:var(--text-primary);margin-bottom:5px}
+.upload-sub{font-size:12px;color:var(--text-secondary)}
+
+/* TOGGLE */
+.toggle{width:36px;height:20px;border-radius:10px;background:var(--border-strong);cursor:pointer;position:relative;flex-shrink:0;border:none;padding:0;transition:background 0.2s}
+.toggle.on{background:var(--pi-purple)}
+.toggle::after{content:'';position:absolute;width:14px;height:14px;background:#fff;border-radius:50%;top:3px;left:3px;transition:transform 0.2s;box-shadow:0 1px 3px rgba(0,0,0,0.2)}
+.toggle.on::after{transform:translateX(16px)}
+
+/* CHART */
+.chart-bars{display:flex;align-items:flex-end;gap:7px;height:110px;padding-top:10px}
+.bar-col{flex:1;display:flex;flex-direction:column;align-items:center;gap:5px}
+.bar{width:100%;background:var(--pi-purple-pale);border-radius:4px 4px 0 0;transition:background 0.15s;cursor:pointer}
+.bar:hover,.bar.current{background:var(--pi-purple)}
+.bar-label{font-size:9px;color:var(--text-muted)}
+
+/* TX */
+.history-tx{display:flex;align-items:center;gap:12px;padding:11px 0;border-bottom:0.5px solid var(--border)}
+.history-tx:last-child{border-bottom:none}
+.tx-icon{width:34px;height:34px;border-radius:9px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.tx-icon.out{background:var(--danger-bg)}
+.tx-icon.in{background:var(--success-bg)}
+.tx-icon.out i{color:var(--danger);font-size:16px}
+.tx-icon.in i{color:var(--success);font-size:16px}
+.tx-info{flex:1;min-width:0}
+.tx-name{font-size:13px;font-weight:500;color:var(--text-primary)}
+.tx-hash{font-size:10px;color:var(--text-muted);font-family:'SF Mono','Fira Code',monospace;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tx-right{text-align:right;flex-shrink:0}
+.tx-amount{font-size:13px;font-weight:600;font-family:'SF Mono','Fira Code',monospace}
+.tx-amount.out{color:var(--danger)}
+.tx-amount.in{color:var(--success)}
+.tx-date{font-size:10px;color:var(--text-muted);margin-top:2px}
+
+/* RECURRING */
+.recurring-card{display:flex;align-items:center;justify-content:space-between;padding:13px 16px;background:var(--surface-0);border:0.5px solid var(--border);border-radius:10px;margin-bottom:8px}
+
+/* REPORTS */
+.report-row{display:flex;align-items:center;gap:12px;padding:12px 14px;background:var(--surface-0);border:0.5px solid var(--border);border-radius:10px;margin-bottom:8px}
+.report-icon{width:38px;height:38px;border-radius:9px;background:var(--pi-purple-pale);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.report-icon i{font-size:19px;color:var(--pi-purple)}
+.report-name{font-size:13px;font-weight:500;color:var(--text-primary)}
+.report-meta{font-size:11px;color:var(--text-secondary);margin-top:2px}
+
+/* TEMPLATE */
+.template-box{background:var(--surface-0);border:0.5px solid var(--border);border-radius:10px;padding:12px 16px;font-size:12px;margin-bottom:14px}
+.template-row{display:flex;align-items:center;justify-content:space-between;padding:5px 0;border-bottom:0.5px solid var(--border)}
+.template-row:last-child{border-bottom:none}
+.template-key{color:var(--text-muted);font-family:'SF Mono','Fira Code',monospace}
+
+/* PROGRESS */
+.progress-bar{width:100%;height:6px;background:var(--pi-purple-pale);border-radius:3px;overflow:hidden;margin-top:10px}
+.progress-fill{height:100%;background:var(--pi-purple);border-radius:3px;transition:width 0.4s ease}
+
+/* EMPTY STATE */
+.empty-state{text-align:center;padding:40px 24px;color:var(--text-muted)}
+.empty-state i{font-size:36px;display:block;margin-bottom:10px;color:var(--border-strong)}
+.empty-state-title{font-size:14px;font-weight:500;color:var(--text-secondary);margin-bottom:5px}
+.empty-state-sub{font-size:12px}
+
+/* SDK CODE */
+.code-block{background:var(--pi-dark);border-radius:10px;padding:14px 16px;font-family:'SF Mono','Fira Code',monospace;font-size:12px;line-height:1.7;overflow-x:auto;margin-bottom:20px}
+
+/* MISC */
+.pi-sym{color:var(--pi-purple);font-family:'Georgia',serif;font-weight:700}
+.pi-amount{font-family:'SF Mono','Fira Code',monospace;font-weight:500}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.row-between{display:flex;align-items:center;justify-content:space-between}
+.row-gap{display:flex;align-items:center;gap:10px}
+.mt-14{margin-top:14px}
+.mb-14{margin-bottom:14px}
+
+/* BANNER */
+.sdk-banner{background:var(--pi-dark);border-radius:12px;padding:20px 24px;display:flex;align-items:center;justify-content:space-between;margin-bottom:20px}
+.sdk-banner-title{font-size:14px;font-weight:600;color:rgba(255,255,255,0.9);margin-bottom:4px}
+.sdk-banner-sub{font-size:12px;color:rgba(255,255,255,0.45)}
+
+/* TOAST */
+.toast{position:fixed;bottom:24px;right:24px;background:var(--pi-dark);color:#fff;padding:12px 18px;border-radius:10px;font-size:13px;display:flex;align-items:center;gap:8px;transform:translateY(80px);opacity:0;transition:transform 0.25s,opacity 0.25s;z-index:999;box-shadow:0 8px 24px rgba(0,0,0,0.25)}
+.toast.show{transform:translateY(0);opacity:1}
+
+/* RESPONSIVE */
+@media(max-width:900px){
+  .sidebar{width:56px}
+  .logo-text,.logo-sub,.nav-section,.nav-item span,.user-info{display:none}
+  .nav-item{justify-content:center;padding:10px}
+  .nav-item i{font-size:20px}
+  .logo-pi{font-size:22px}
+  .stats-grid{grid-template-columns:1fr 1fr}
+  .two-col{grid-template-columns:1fr}
+  .form-grid{grid-template-columns:1fr}
+}
+@media(max-width:600px){
+  .stats-grid{grid-template-columns:1fr}
+  .topbar{padding:0 16px}
+  .content{padding:16px}
+}
+
+::-webkit-scrollbar{width:6px;height:6px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--border-strong);border-radius:3px}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* PI WALLET */
+.pi-connect-btn{display:inline-flex;align-items:center;gap:7px;padding:6px 14px;border-radius:20px;font-size:12px;font-weight:600;cursor:pointer;border:1px solid var(--pi-purple);background:var(--pi-purple);color:#fff;transition:all 0.12s;font-family:inherit;white-space:nowrap}
+.pi-connect-btn:hover{background:var(--pi-purple-mid);border-color:var(--pi-purple-mid)}
+.pi-connect-btn.connected{background:transparent;border:1px solid var(--success);color:var(--success);cursor:default}
+.pi-connect-btn.loading{opacity:.6;pointer-events:none}
+.status-dot{width:8px;height:8px;border-radius:50%;display:inline-block;flex-shrink:0}
+.status-dot.green{background:var(--success);animation:pulse 2s infinite}
+.status-dot.red{background:var(--danger)}
+.status-dot.yellow{background:var(--pi-amber)}
+.pi-user-chip{display:flex;align-items:center;gap:6px;color:var(--text-primary);font-size:12px;font-weight:500}
+.pi-user-chip .pi-at{color:var(--pi-purple)}
+.pi-browser-warning{display:none;background:var(--warning-bg);border:1px solid #FCD34D;border-radius:10px;padding:16px 20px;margin-bottom:16px;text-align:center}
+.pi-browser-warning.show{display:block}
+.pi-browser-warning i{font-size:28px;color:var(--pi-amber);display:block;margin-bottom:8px}
+.pi-browser-warning .warn-title{font-size:14px;font-weight:600;color:var(--warning-text);margin-bottom:4px}
+.pi-browser-warning .warn-sub{font-size:12px;color:var(--warning-text);opacity:.8;line-height:1.5}
+
+/* WALLET CARDS */
+.wallet-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:20px}
+.wallet-card{background:var(--surface-2);border:0.5px solid var(--border);border-radius:12px;padding:18px 20px}
+.wallet-card-header{font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.06em;font-weight:600;margin-bottom:10px}
+.wallet-card-value{font-size:22px;font-weight:600;color:var(--text-primary)}
+.wallet-card-sub{font-size:11px;color:var(--text-muted);margin-top:4px}
+.wallet-username{color:var(--pi-purple);font-family:'SF Mono','Fira Code',monospace;font-size:14px}
+.wallet-uid{font-family:'SF Mono','Fira Code',monospace;font-size:13px;color:var(--text-secondary);word-break:break-all}
+
+/* INCOMPLETE PAYMENT BANNER */
+.incomplete-banner{display:none;background:var(--danger-bg);border:1px solid #FCA5A5;border-radius:10px;padding:12px 18px;margin-bottom:16px;align-items:center;justify-content:space-between;gap:12px}
+.incomplete-banner.show{display:flex}
+.incomplete-banner .inc-text{font-size:13px;color:var(--danger);font-weight:500}
+.incomplete-banner .inc-detail{font-size:11px;color:var(--danger);opacity:.7}
+
+/* APPROVAL MODAL */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:1000;align-items:center;justify-content:center}
+.modal-overlay.show{display:flex}
+.modal-box{background:var(--surface-2);border-radius:14px;padding:28px 32px;max-width:520px;width:90%;box-shadow:0 20px 60px rgba(0,0,0,0.3);border:0.5px solid var(--border)}
+.modal-box .modal-title{font-size:16px;font-weight:600;color:var(--text-primary);margin-bottom:20px;display:flex;align-items:center;gap:10px}
+.modal-box .modal-summary-row{display:flex;justify-content:space-between;padding:10px 0;border-bottom:0.5px solid var(--border);font-size:13px}
+.modal-box .modal-summary-row:last-child{border-bottom:none}
+.modal-box .modal-summary-label{color:var(--text-secondary)}
+.modal-box .modal-summary-val{font-weight:600;color:var(--text-primary)}
+.modal-box .modal-actions{display:flex;gap:10px;margin-top:20px;justify-content:flex-end}
+.modal-box .modal-category-list{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
+
+@media(max-width:600px){
+  .wallet-grid{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+<div class="app">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-row">
+        <span class="logo-pi">π</span>
+        <div>
+          <div class="logo-text">Pi Payroll</div>
+          <div class="logo-sub">Payroll on Pi Network</div>
+        </div>
+      </div>
+    </div>
+    <nav class="nav">
+      <div class="nav-section">Main</div>
+      <button class="nav-item active" onclick="show('dashboard',this)">
+        <i class="ti ti-layout-dashboard"></i><span>Dashboard</span>
+      </button>
+      <button class="nav-item" onclick="show('payments',this)">
+        <i class="ti ti-send"></i><span>Payments</span>
+      </button>
+      <button class="nav-item" onclick="show('csv',this)">
+        <i class="ti ti-file-spreadsheet"></i><span>CSV Upload</span>
+      </button>
+      <div class="nav-section">Automation</div>
+      <button class="nav-item" onclick="show('recurring',this)">
+        <i class="ti ti-repeat"></i><span>Recurring</span>
+      </button>
+      <div class="nav-section">Data</div>
+      <button class="nav-item" onclick="show('history',this)">
+        <i class="ti ti-history"></i><span>History</span>
+      </button>
+      <button class="nav-item" onclick="show('reports',this)">
+        <i class="ti ti-chart-bar"></i><span>Reports</span>
+      </button>
+      <button class="nav-item" onclick="show('sdk',this)">
+        <i class="ti ti-code"></i><span>SDK Integration</span>
+      </button>
+      <button class="nav-item" onclick="show('wallet',this)">
+        <i class="ti ti-wallet"></i><span>Wallet</span>
+      </button>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="user-row">
+        <div class="user-av" id="org-av">OR</div>
+        <div class="user-info">
+          <div class="user-name" id="org-name">My Organization</div>
+          <div class="user-role">Admin · Pi Network</div>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <div class="main">
+    <div class="topbar">
+      <span class="page-title" id="page-title">Dashboard</span>
+      <div class="topbar-right">
+        <button class="pi-connect-btn" id="pi-connect-btn" onclick="PiWalletManager.connect()">
+          <i class="ti ti-plug"></i><span id="pi-connect-label">Connect Pi Wallet</span>
+        </button>
+        <div class="badge-network" id="badge-network">
+          <span class="net-dot"></span>Pi Mainnet
+        </div>
+        <button class="btn btn-primary btn-sm" onclick="show('payments',null);toast('New payment opened')">
+          <i class="ti ti-plus"></i>New Payment
+        </button>
+      </div>
+    </div>
+
+    <div class="content">
+      <div id="pi-browser-warn" class="pi-browser-warning">
+        <i class="ti ti-alert-triangle"></i>
+        <div class="warn-title">Pi Browser Required</div>
+        <div class="warn-sub">Pi Payroll currently works only inside the official Pi Browser.<br>Please open this application using the Pi Browser.</div>
+      </div>
+      <div id="incomplete-banner" class="incomplete-banner">
+        <div>
+          <div class="inc-text" id="inc-text"></div>
+          <div class="inc-detail" id="inc-detail"></div>
+        </div>
+        <button class="btn btn-sm btn-primary" id="inc-complete-btn" onclick="PiWalletManager.completeIncompletePayment()" style="display:none">Complete</button>
+      </div>
+
+      <!-- DASHBOARD -->
+      <div class="panel active" id="panel-dashboard">
+        <div class="sdk-banner">
+          <div>
+            <div class="sdk-banner-title">π Pi Payroll — Decentralized Payroll System</div>
+            <div class="sdk-banner-sub">Built on Pi Network · On-chain payments · Zero traditional banking fees</div>
+          </div>
+          <button class="btn btn-amber btn-sm" onclick="show('sdk',null)">
+            <i class="ti ti-plug"></i>Connect Pi SDK
+          </button>
+        </div>
+
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-label">Sent this cycle</div>
+            <div class="stat-value" id="dash-sent"><span class="pi-sym">π</span> 0</div>
+            <div class="stat-sub" id="dash-sent-sub" style="color:var(--text-muted)">No payments yet</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Active recipients</div>
+            <div class="stat-value" id="dash-recipients">0</div>
+            <div class="stat-sub" style="color:var(--text-muted)" id="dash-rec-sub">No recipients yet</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Total transactions</div>
+            <div class="stat-value" id="dash-txcount">0</div>
+            <div class="stat-sub" style="color:var(--text-muted)">All time</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Scheduled payments</div>
+            <div class="stat-value" id="dash-scheduled">0</div>
+            <div class="stat-sub" style="color:var(--text-muted)" id="dash-sched-sub">No schedules set</div>
+          </div>
+        </div>
+
+        <div class="two-col">
+          <div class="card">
+            <div class="section-title">Recent transactions</div>
+            <div id="dash-recent">
+              <div class="empty-state">
+                <i class="ti ti-clock"></i>
+                <div class="empty-state-title">No transactions yet</div>
+                <div class="empty-state-sub">Payments you send will appear here</div>
+              </div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="section-title">
+              Breakdown by category
+            </div>
+            <div id="dash-categories">
+              <div class="empty-state">
+                <i class="ti ti-chart-pie"></i>
+                <div class="empty-state-title">No data yet</div>
+                <div class="empty-state-sub">Categories will appear after your first payment</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PAYMENTS -->
+      <div class="panel" id="panel-payments">
+        <div class="card mb-14">
+          <div class="section-title" style="margin-bottom:16px">New payment</div>
+          <div class="form-grid">
+            <div class="form-group">
+              <label>Recipient (Pi username or address)</label>
+              <input class="input" type="text" id="pay-recipient" placeholder="@username or GXXXXX…" />
+            </div>
+            <div class="form-group">
+              <label>Amount (π)</label>
+              <input class="input" type="number" id="pay-amount" placeholder="0.00" min="0" step="0.01" />
+            </div>
+            <div class="form-group">
+              <label>Memo</label>
+              <input class="input" type="text" id="pay-memo" placeholder="July salary, freelance invoice…" />
+            </div>
+            <div class="form-group">
+              <label>Category</label>
+              <select class="input" id="pay-category">
+                <option>Salary</option>
+                <option>Freelance</option>
+                <option>Reimbursement</option>
+                <option>Bonus</option>
+                <option>Contract</option>
+                <option>Other</option>
+              </select>
+            </div>
+          </div>
+          <div class="btn-group">
+            <button class="btn btn-primary" onclick="addToQueue()">
+              <i class="ti ti-plus"></i>Add to queue
+            </button>
+            <button class="btn" onclick="processQueue()">
+              <i class="ti ti-send"></i>Send entire queue
+            </button>
+            <button class="btn" onclick="show('csv',null)">
+              <i class="ti ti-file-spreadsheet"></i>Import CSV
+            </button>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="section-title">
+            Payment queue
+            <div class="row-gap">
+              <span id="queue-count" style="font-size:12px;color:var(--text-muted)">0 in queue</span>
+              <button class="btn btn-sm" onclick="clearQueue()">
+                <i class="ti ti-trash" style="font-size:12px"></i>Clear
+              </button>
+            </div>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Recipient</th><th>Username</th><th>Amount</th><th>Memo</th><th>Category</th><th>Status</th><th></th>
+                </tr>
+              </thead>
+              <tbody id="payment-queue"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- CSV -->
+      <div class="panel" id="panel-csv">
+        <div class="card mb-14">
+          <div class="upload-zone" id="upload-zone" onclick="handleUploadClick()">
+            <i class="ti ti-cloud-upload"></i>
+            <div class="upload-title">Drag a CSV here or click to select</div>
+            <div class="upload-sub">Expected columns: name, pi_username, amount, memo, category</div>
+          </div>
+          <input type="file" id="csv-file-input" accept=".csv" style="display:none" onchange="handleFileSelect(this)" />
+
+          <div style="margin-bottom:14px">
+            <div class="section-title" style="margin-bottom:10px">Expected format</div>
+            <div class="template-box">
+              <div class="template-row"><span class="template-key">name</span><span>John Smith</span></div>
+              <div class="template-row"><span class="template-key">pi_username</span><span>@john_smith</span></div>
+              <div class="template-row"><span class="template-key">amount</span><span>350.00</span></div>
+              <div class="template-row"><span class="template-key">memo</span><span>July 2025 salary</span></div>
+              <div class="template-row"><span class="template-key">category</span><span>Salary</span></div>
+            </div>
+          </div>
+          <button class="btn btn-sm" onclick="downloadTemplate()">
+            <i class="ti ti-download"></i>Download CSV template
+          </button>
+        </div>
+
+        <div class="card" id="csv-preview" style="display:none">
+          <div class="section-title">
+            <span id="csv-title">Preview</span>
+            <button class="btn btn-primary btn-sm" onclick="sendCsvBatch()">
+              <i class="ti ti-send"></i>Send all
+            </button>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr><th>#</th><th>Name</th><th>Pi Username</th><th>Amount</th><th>Memo</th><th>Category</th><th>Validation</th></tr>
+              </thead>
+              <tbody id="csv-body"></tbody>
+            </table>
+          </div>
+          <div style="margin-top:14px">
+            <div class="row-between" style="margin-bottom:5px">
+              <span style="font-size:12px;color:var(--text-secondary)" id="csv-prog-label">Ready to send</span>
+              <span style="font-size:12px;font-weight:600;color:var(--pi-purple)" id="csv-prog-pct">0%</span>
+            </div>
+            <div class="progress-bar"><div class="progress-fill" id="prog-fill" style="width:0%"></div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- RECURRING -->
+      <div class="panel" id="panel-recurring">
+        <div class="card mb-14">
+          <div class="section-title" style="margin-bottom:16px">New recurring payment</div>
+          <div class="form-grid">
+            <div class="form-group">
+              <label>Recipient (Pi username)</label>
+              <input class="input" type="text" id="rec-recipient" placeholder="@username" />
+            </div>
+            <div class="form-group">
+              <label>Amount (π)</label>
+              <input class="input" type="number" id="rec-amount" placeholder="0.00" min="0" step="0.01" />
+            </div>
+            <div class="form-group">
+              <label>Frequency</label>
+              <select class="input" id="rec-freq">
+                <option>Weekly</option>
+                <option>Bi-weekly</option>
+                <option selected>Monthly</option>
+                <option>Quarterly</option>
+                <option>Yearly</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>First payment date</label>
+              <input class="input" type="date" id="rec-date" />
+            </div>
+            <div class="form-group">
+              <label>Memo</label>
+              <input class="input" type="text" id="rec-memo" placeholder="Monthly salary, grant…" />
+            </div>
+            <div class="form-group">
+              <label>Category</label>
+              <select class="input" id="rec-category">
+                <option>Salary</option>
+                <option>Freelance</option>
+                <option>Grant</option>
+                <option>Contract</option>
+                <option>Other</option>
+              </select>
+            </div>
+          </div>
+          <button class="btn btn-primary" onclick="addRecurring()">
+            <i class="ti ti-repeat"></i>Create schedule
+          </button>
+        </div>
+        <div class="card">
+          <div class="section-title">Active schedules</div>
+          <div id="recurring-list">
+            <div class="empty-state">
+              <i class="ti ti-repeat"></i>
+              <div class="empty-state-title">No recurring payments</div>
+              <div class="empty-state-sub">Create a schedule above to automate payroll</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- HISTORY -->
+      <div class="panel" id="panel-history">
+        <div class="card">
+          <div class="row-between mb-14">
+            <div class="row-gap" style="flex-wrap:wrap">
+              <input class="input" type="text" placeholder="Search by username, hash, amount…"
+                style="width:230px" oninput="renderHistory(this.value, document.getElementById('status-filter').value)" />
+              <select class="input" id="status-filter" style="width:140px"
+                onchange="renderHistory(document.querySelector('input[placeholder*=Search]').value, this.value)">
+                <option value="">All statuses</option>
+                <option value="completed">Completed</option>
+                <option value="pending">Pending</option>
+                <option value="approved">Approved</option>
+                <option value="confirmed">Confirmed</option>
+                <option value="cancelled">Cancelled</option>
+                <option value="failed">Failed</option>
+              </select>
+            </div>
+            <button class="btn btn-sm" onclick="exportHistory()">
+              <i class="ti ti-download"></i>Export CSV
+            </button>
+          </div>
+          <div id="history-list">
+            <div class="empty-state">
+              <i class="ti ti-history"></i>
+              <div class="empty-state-title">No transactions yet</div>
+              <div class="empty-state-sub">Sent payments will appear here with their on-chain hashes</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- REPORTS -->
+      <div class="panel" id="panel-reports">
+        <div class="stats-grid" style="margin-bottom:16px">
+          <div class="stat-card">
+            <div class="stat-label">Total sent (all time)</div>
+            <div class="stat-value" id="rep-total"><span class="pi-sym">π</span> 0</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Top recipient</div>
+            <div class="stat-value" id="rep-top" style="font-size:16px">—</div>
+            <div class="stat-sub" id="rep-top-sub" style="color:var(--text-muted)">No data yet</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Success rate</div>
+            <div class="stat-value stat-up" id="rep-rate">—</div>
+            <div class="stat-sub" style="color:var(--text-muted)" id="rep-rate-sub">No transactions yet</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Unique recipients</div>
+            <div class="stat-value" id="rep-uniq">0</div>
+            <div class="stat-sub" style="color:var(--text-muted)">Across all payments</div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="section-title">Generated reports</div>
+          <div id="report-list">
+            <div class="empty-state">
+              <i class="ti ti-file-description"></i>
+              <div class="empty-state-title">No reports yet</div>
+              <div class="empty-state-sub">Reports are generated automatically after each payment cycle</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SDK -->
+      <div class="panel" id="panel-sdk">
+        <div class="card mb-14">
+          <div class="section-title" style="margin-bottom:18px">Pi Network SDK Integration</div>
+
+          <div style="margin-bottom:20px">
+            <div style="font-size:13px;font-weight:600;color:var(--text-primary);margin-bottom:8px">1. Add the SDK to your HTML</div>
+            <div class="code-block">
+<span style="color:#A9F0D1">&lt;<span style="color:#FCD34D">script</span> <span style="color:#93C5FD">src</span>=<span style="color:#86EFAC">"https://sdk.minepi.com/pi-sdk.js"</span>&gt;&lt;/<span style="color:#FCD34D">script</span>&gt;</span>
+            </div>
+          </div>
+
+          <div style="margin-bottom:20px">
+            <div style="font-size:13px;font-weight:600;color:var(--text-primary);margin-bottom:8px">2. Initialize and authenticate</div>
+            <div class="code-block">
+<span style="color:#C4B5FD">Pi</span>.<span style="color:#93C5FD">init</span>({ <span style="color:#FCD34D">version</span>: <span style="color:#86EFAC">"2.0"</span>, <span style="color:#FCD34D">sandbox</span>: <span style="color:#F87171">false</span> });<br><br>
+<span style="color:#C4B5FD">const</span> auth = <span style="color:#C4B5FD">await</span> Pi.<span style="color:#93C5FD">authenticate</span>(<br>
+&nbsp;&nbsp;[<span style="color:#86EFAC">'payments'</span>, <span style="color:#86EFAC">'username'</span>],<br>
+&nbsp;&nbsp;onIncompletePaymentFound<br>
+);<br>
+<span style="color:#6B7280">// auth.user.username, auth.accessToken</span>
+            </div>
+          </div>
+
+          <div style="margin-bottom:20px">
+            <div style="font-size:13px;font-weight:600;color:var(--text-primary);margin-bottom:8px">3. Create a payment</div>
+            <div class="code-block">
+<span style="color:#C4B5FD">const</span> payment = <span style="color:#C4B5FD">await</span> Pi.<span style="color:#93C5FD">createPayment</span>({<br>
+&nbsp;&nbsp;<span style="color:#FCD34D">amount</span>: <span style="color:#F87171">350</span>,<br>
+&nbsp;&nbsp;<span style="color:#FCD34D">memo</span>: <span style="color:#86EFAC">"July 2025 salary"</span>,<br>
+&nbsp;&nbsp;<span style="color:#FCD34D">metadata</span>: { <span style="color:#FCD34D">recipient</span>: <span style="color:#86EFAC">"@john_smith"</span> }<br>
+}, {<br>
+&nbsp;&nbsp;<span style="color:#FCD34D">onReadyForServerApproval</span>: <span style="color:#C4B5FD">async</span> (paymentId) =&gt; {<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:#6B7280">// approve on your backend</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:#C4B5FD">await</span> <span style="color:#93C5FD">fetch</span>(<span style="color:#86EFAC">'/api/approve'</span>, { ... });<br>
+&nbsp;&nbsp;},<br>
+&nbsp;&nbsp;<span style="color:#FCD34D">onReadyForServerCompletion</span>: <span style="color:#C4B5FD">async</span> (paymentId, txid) =&gt; {<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:#6B7280">// complete and store txid on-chain</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:#C4B5FD">await</span> <span style="color:#93C5FD">fetch</span>(<span style="color:#86EFAC">'/api/complete'</span>, { ... });<br>
+&nbsp;&nbsp;},<br>
+&nbsp;&nbsp;<span style="color:#FCD34D">onCancel</span>: (paymentId) =&gt; <span style="color:#93C5FD">console</span>.<span style="color:#93C5FD">log</span>(<span style="color:#86EFAC">'cancelled'</span>),<br>
+&nbsp;&nbsp;<span style="color:#FCD34D">onError</span>: (err) =&gt; <span style="color:#93C5FD">console</span>.<span style="color:#93C5FD">error</span>(err)<br>
+});
+            </div>
+          </div>
+
+          <div style="margin-bottom:20px">
+            <div style="font-size:13px;font-weight:600;color:var(--text-primary);margin-bottom:8px">4. Handle incomplete payments on load</div>
+            <div class="code-block">
+<span style="color:#C4B5FD">function</span> <span style="color:#93C5FD">onIncompletePaymentFound</span>(payment) {<br>
+&nbsp;&nbsp;<span style="color:#6B7280">// called if a previous payment was not completed</span><br>
+&nbsp;&nbsp;<span style="color:#93C5FD">console</span>.<span style="color:#93C5FD">log</span>(<span style="color:#86EFAC">'Incomplete payment:'</span>, payment.identifier);<br>
+&nbsp;&nbsp;<span style="color:#6B7280">// complete or cancel it via your backend</span><br>
+}
+            </div>
+          </div>
+
+          <div class="btn-group">
+            <a class="btn btn-primary" href="https://pi-apps.github.io/community-developer-guide/" target="_blank">
+              <i class="ti ti-external-link"></i>Developer Guide
+            </a>
+            <a class="btn" href="https://github.com/pi-apps/pi-platform-docs" target="_blank">
+              <i class="ti ti-brand-github"></i>Pi Platform Docs
+            </a>
+            <a class="btn" href="https://github.com/pi-apps/demo" target="_blank">
+              <i class="ti ti-code"></i>Demo App
+            </a>
+            <a class="btn" href="https://github.com/pi-apps/pi-nodejs" target="_blank">
+              <i class="ti ti-brand-nodejs"></i>Node.js SDK
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- WALLET -->
+      <div class="panel" id="panel-wallet">
+        <div class="pi-browser-warning" id="wallet-browser-warn">
+          <i class="ti ti-alert-triangle"></i>
+          <div class="warn-title">Pi Browser Required</div>
+          <div class="warn-sub">Pi Payroll currently works only inside the official Pi Browser.<br>Please open this application using the Pi Browser.</div>
+        </div>
+        <div class="wallet-grid" id="wallet-grid">
+          <div class="wallet-card">
+            <div class="wallet-card-header">Connected Wallet</div>
+            <div class="wallet-card-value wallet-username" id="wl-username">—</div>
+            <div class="wallet-card-sub" id="wl-status">Not connected</div>
+          </div>
+          <div class="wallet-card">
+            <div class="wallet-card-header">UID</div>
+            <div class="wallet-card-value wallet-uid" id="wl-uid">—</div>
+            <div class="wallet-card-sub">User identifier</div>
+          </div>
+          <div class="wallet-card">
+            <div class="wallet-card-header">Network</div>
+            <div class="wallet-card-value" id="wl-network" style="font-size:16px">Pi Mainnet</div>
+            <div class="wallet-card-sub" id="wl-sdk-status">SDK not initialized</div>
+          </div>
+          <div class="wallet-card">
+            <div class="wallet-card-header">Payroll Statistics</div>
+            <div class="wallet-card-value" id="wl-total-sent"><span class="pi-sym">π</span> 0</div>
+            <div class="wallet-card-sub" id="wl-tx-info">No transactions</div>
+          </div>
+          <div class="wallet-card">
+            <div class="wallet-card-header">Total Pi Sent</div>
+            <div class="wallet-card-value" id="wl-total-pi"><span class="pi-sym">π</span> 0</div>
+            <div class="wallet-card-sub" id="wl-scheduled-info">0 scheduled payments</div>
+          </div>
+          <div class="wallet-card">
+            <div class="wallet-card-header">Transactions</div>
+            <div class="wallet-card-value" id="wl-tx-count">0</div>
+            <div class="wallet-card-sub" id="wl-last-tx">No transactions yet</div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="section-title">Pi SDK Status</div>
+          <div id="wl-sdk-detail" style="font-size:13px;color:var(--text-secondary)">
+            <div>Balance information currently unavailable via Pi SDK.</div>
+            <div style="margin-top:6px;font-size:12px;color:var(--text-muted)">Connect your Pi Wallet to view your account details.</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- PAYMENT APPROVAL MODAL -->
+<div class="modal-overlay" id="approval-modal" onclick="if(event.target===this)PiWalletManager.cancelApproval()">
+  <div class="modal-box">
+    <div class="modal-title">
+      <i class="ti ti-send" style="color:var(--pi-purple);font-size:22px"></i>
+      PAYROLL SUMMARY
+    </div>
+    <div class="modal-summary-row">
+      <span class="modal-summary-label">Recipients</span>
+      <span class="modal-summary-val" id="modal-recipients">0</span>
+    </div>
+    <div class="modal-summary-row">
+      <span class="modal-summary-label">Total Amount</span>
+      <span class="modal-summary-val" id="modal-total" style="color:var(--pi-purple)">0 PI</span>
+    </div>
+    <div class="modal-summary-row">
+      <span class="modal-summary-label">Categories</span>
+      <div class="modal-category-list" id="modal-categories"></div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn" onclick="PiWalletManager.cancelApproval()">Cancel</button>
+      <button class="btn btn-primary" id="modal-approve-btn" onclick="PiWalletManager.approveAndSend()">
+        <i class="ti ti-check"></i>Approve Payroll
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast-el">
+  <i class="ti ti-check" style="color:#6EE7B7"></i>
+  <span id="toast-msg">Done</span>
+</div>
+
+<script>
+// ── STATE ─────────────────────────────────────────────────
+const state = {
+  queue: [],
+  recurring: [],
+  history: [],
+  csvRows: [],
+  incompletePayments: [],
+};
+
+// ── PI WALLET MANAGER ──────────────────────────────────────
+const PiWalletManager = {
+  _initialized: false,
+  _connected: false,
+  _user: null,
+  _accessToken: null,
+  _pendingPayment: null,
+  _approvalData: null,
+  _isPiBrowser: false,
+
+  detectPiBrowser: function() {
+    try {
+      var ua = navigator.userAgent || '';
+      this._isPiBrowser = /PiBrowser/i.test(ua) || (typeof Pi !== 'undefined' && typeof Pi.init === 'function');
+    } catch (e) {
+      this._isPiBrowser = false;
+    }
+    return this._isPiBrowser;
+  },
+
+  initialize: function() {
+    if (this._initialized) return true;
+    if (!this.detectPiBrowser()) {
+      this.showBrowserWarning();
+      return false;
+    }
+    try {
+      Pi.init({ version: '2.0', sandbox: false });
+      this._initialized = true;
+      this.hideBrowserWarning();
+      this.updateConnectButton();
+      return true;
+    } catch (e) {
+      this._initialized = false;
+      return false;
+    }
+  },
+
+  showBrowserWarning: function() {
+    var warn = document.getElementById('pi-browser-warn');
+    if (warn) warn.classList.add('show');
+    var wlWarn = document.getElementById('wallet-browser-warn');
+    if (wlWarn) wlWarn.classList.add('show');
+    var btn = document.getElementById('pi-connect-btn');
+    if (btn) { btn.classList.add('loading'); btn.disabled = true; }
+  },
+
+  hideBrowserWarning: function() {
+    var warn = document.getElementById('pi-browser-warn');
+    if (warn) warn.classList.remove('show');
+    var wlWarn = document.getElementById('wallet-browser-warn');
+    if (wlWarn) wlWarn.classList.remove('show');
+  },
+
+  connect: async function() {
+    if (!this._isPiBrowser && !this.detectPiBrowser()) {
+      toast('Pi Browser required. Please open this app inside the Pi Browser.');
+      return;
+    }
+    if (!this._initialized) {
+      if (!this.initialize()) {
+        toast('SDK initialization failed. Please try again.');
+        return;
+      }
+    }
+    if (this._connected) {
+      toast('Already connected as @' + this.getUsername());
+      return;
+    }
+    var btn = document.getElementById('pi-connect-btn');
+    btn.classList.add('loading');
+    try {
+      var scopes = ['payments', 'username'];
+      var auth = await Pi.authenticate(scopes, this._onIncompletePaymentFound.bind(this));
+      this._user = auth.user;
+      this._accessToken = auth.accessToken;
+      this._connected = true;
+      this.updateConnectButton();
+      this.updateWalletPanel();
+      toast('Connected as @' + this.getUsername());
+    } catch (e) {
+      this._connected = false;
+      toast('Authentication failed. ' + (e.message || 'Please try again.'));
+    } finally {
+      btn.classList.remove('loading');
+    }
+  },
+
+  disconnect: function() {
+    this._connected = false;
+    this._user = null;
+    this._accessToken = null;
+    this.updateConnectButton();
+    this.updateWalletPanel();
+    toast('Wallet disconnected.');
+  },
+
+  isConnected: function() {
+    return this._connected && this._user !== null;
+  },
+
+  getUser: function() {
+    return this._user;
+  },
+
+  getAccessToken: function() {
+    return this._accessToken;
+  },
+
+  getUsername: function() {
+    return this._user ? this._user.username : null;
+  },
+
+  getUID: function() {
+    return this._user ? this._user.uid : null;
+  },
+
+  _onIncompletePaymentFound: function(payment) {
+    state.incompletePayments.push(payment);
+    this.showIncompleteBanner();
+    if (this._connected) {
+      this.completeIncompletePayment(payment);
+    }
+  },
+
+  showIncompleteBanner: function() {
+    var banner = document.getElementById('incomplete-banner');
+    var text = document.getElementById('inc-text');
+    var detail = document.getElementById('inc-detail');
+    var btn = document.getElementById('inc-complete-btn');
+    if (state.incompletePayments.length === 0) {
+      banner.classList.remove('show');
+      return;
+    }
+    text.textContent = 'You have ' + state.incompletePayments.length + ' incomplete payroll transaction(s).';
+    detail.textContent = 'Payment ID: ' + state.incompletePayments[0].identifier;
+    if (state.incompletePayments.length === 1 && this._connected) {
+      btn.style.display = 'inline-flex';
+    } else {
+      btn.style.display = 'none';
+    }
+    banner.classList.add('show');
+  },
+
+  completeIncompletePayment: function(payment) {
+    var p = payment || state.incompletePayments[0];
+    if (!p) return;
+    if (!this._connected) { toast('Please connect your Pi Wallet first.'); return; }
+    try {
+      Pi.createPayment({
+        amount: p.amount,
+        memo: p.memo || 'Payroll payment',
+        metadata: p.metadata || {}
+      }, {
+        onReadyForServerApproval: function(paymentId) {
+          toast('Payment ' + paymentId + ' approved on server.');
+        },
+        onReadyForServerCompletion: function(paymentId, txid) {
+          toast('Payment completed. TX Hash: ' + txid);
+          state.incompletePayments = state.incompletePayments.filter(function(x) { return x.identifier !== p.identifier; });
+          PiWalletManager.showIncompleteBanner();
+        },
+        onCancel: function() { toast('Payment cancelled.'); },
+        onError: function(err) { toast('Error: ' + (err.message || 'Payment failed.')); }
+      });
+    } catch (e) {
+      toast('Failed to complete payment: ' + (e.message || 'Unknown error'));
+    }
+  },
+
+  updateConnectButton: function() {
+    var btn = document.getElementById('pi-connect-btn');
+    var label = document.getElementById('pi-connect-label');
+    if (!btn || !label) return;
+    if (!this._isPiBrowser) {
+      btn.classList.add('loading');
+      btn.disabled = true;
+      label.textContent = 'Pi Browser Required';
+      return;
+    }
+    btn.disabled = false;
+    btn.classList.remove('loading');
+    if (this._connected) {
+      btn.classList.add('connected');
+      btn.innerHTML = '<span class="status-dot green"></span> <span id="pi-connect-label">Connected</span>';
+      btn.onclick = function() { PiWalletManager.showWalletInfo(); };
+    } else {
+      btn.classList.remove('connected');
+      btn.innerHTML = '<i class="ti ti-plug"></i><span id="pi-connect-label">Connect Pi Wallet</span>';
+      btn.onclick = function() { PiWalletManager.connect(); };
+    }
+  },
+
+  showWalletInfo: function() {
+    show('wallet', null);
+  },
+
+  processPayroll: function(queueItems) {
+    if (!this._isPiBrowser && !this.detectPiBrowser()) {
+      toast('Pi Browser required to send payments.');
+      return;
+    }
+    if (queueItems.length === 0) { toast('Queue is empty.'); return; }
+
+    var total = queueItems.reduce(function(s, r) { return s + r.val; }, 0);
+    var recipients = queueItems.length;
+    var cats = {};
+    queueItems.forEach(function(r) { cats[r.cat] = (cats[r.cat] || 0) + 1; });
+
+    this._approvalData = {
+      queue: queueItems.slice(),
+      total: total,
+      recipients: recipients,
+      categories: cats
+    };
+
+    document.getElementById('modal-recipients').textContent = recipients;
+    document.getElementById('modal-total').textContent = fmt(total) + ' PI';
+    var catHtml = '';
+    for (var k in cats) {
+      catHtml += '<span class="pill pill-purple">' + k + '</span>';
+    }
+    document.getElementById('modal-categories').innerHTML = catHtml;
+    document.getElementById('approval-modal').classList.add('show');
+  },
+
+  cancelApproval: function() {
+    this._approvalData = null;
+    document.getElementById('approval-modal').classList.remove('show');
+    toast('Payroll cancelled.');
+  },
+
+  approveAndSend: async function() {
+    if (!this._approvalData) return;
+    var data = this._approvalData;
+    document.getElementById('approval-modal').classList.remove('show');
+
+    if (!this._connected) {
+      toast('Please connect your Pi Wallet first.');
+      return;
+    }
+
+    var items = data.queue;
+    var sent = 0;
+    var failed = 0;
+
+    for (var i = 0; i < items.length; i++) {
+      try {
+        await this._sendPiPayment(items[i]);
+        sent++;
+      } catch (e) {
+        failed++;
+        items[i]._error = e.message || 'Unknown error';
+        this._recordFailedPayment(items[i], e.message);
+      }
+    }
+
+    if (sent > 0) {
+      state.queue = [];
+      renderQueue();
+      renderHistory();
+      updateReports();
+      updateDashboard();
+      updateWalletPanel();
+      toast(sent + ' payment(s) sent via Pi Wallet — ' + fmt(data.total) + ' PI total');
+    }
+    if (failed > 0) {
+      toast(failed + ' payment(s) failed. Check history for details.', 4000);
+    }
+    this._approvalData = null;
+  },
+
+  _sendPiPayment: function(item) {
+    var self = this;
+    return new Promise(function(resolve, reject) {
+      Pi.createPayment({
+        amount: item.val,
+        memo: item.memo || 'Pi Payroll',
+        metadata: {
+          recipient: item.name,
+          category: item.cat,
+          payroll_id: 'pp_' + Date.now() + '_' + Math.random().toString(36).slice(2,8)
+        }
+      }, {
+        onReadyForServerApproval: function(paymentId) {
+          self._recordPayment(item, paymentId, null, 'pending');
+        },
+        onReadyForServerCompletion: function(paymentId, txid) {
+          self._recordPayment(item, paymentId, txid, 'completed');
+          resolve({ paymentId: paymentId, txid: txid });
+        },
+        onCancel: function(paymentId) {
+          self._recordPayment(item, paymentId, null, 'cancelled');
+          reject(new Error('Payment cancelled by user.'));
+        },
+        onError: function(err, payment) {
+          reject(new Error(err.message || 'Payment failed'));
+        }
+      });
+    });
+  },
+
+  _recordPayment: function(item, paymentId, txid, status) {
+    var display = item.name.startsWith('@')
+      ? item.name.slice(1).replace(/_/g, ' ').replace(/\b\w/g, function(c) { return c.toUpperCase(); })
+      : item.display || item.name;
+    var hashStr = txid || paymentId || this._fallbackTxId();
+    state.history.unshift({
+      dir: 'out',
+      name: item.name,
+      display: display,
+      hash: hashStr,
+      piPaymentId: paymentId || null,
+      txHash: txid || null,
+      val: item.val,
+      date: fmtDate(),
+      status: status,
+      cat: item.cat,
+      memo: item.memo,
+      username: item.name,
+      authTime: new Date().toISOString()
+    });
+  },
+
+  _recordFailedPayment: function(item, errorMsg) {
+    var display = item.name.startsWith('@')
+      ? item.name.slice(1).replace(/_/g, ' ').replace(/\b\w/g, function(c) { return c.toUpperCase(); })
+      : item.display || item.name;
+    state.history.unshift({
+      dir: 'out',
+      name: item.name,
+      display: display,
+      hash: 'FAILED',
+      piPaymentId: null,
+      txHash: null,
+      val: item.val,
+      date: fmtDate(),
+      status: 'failed',
+      cat: item.cat,
+      memo: item.memo + ' (Error: ' + errorMsg + ')',
+      username: item.name,
+      authTime: null
+    });
+  },
+
+  _fallbackTxId: function() {
+    return Array.from({ length: 20 }, function() { return Math.floor(Math.random() * 16).toString(16); }).join('').toUpperCase();
+  },
+
+  updateWalletPanel: function() {
+    var wlWarn = document.getElementById('wallet-browser-warn');
+    if (!this._isPiBrowser && wlWarn) {
+      wlWarn.classList.add('show');
+    } else if (wlWarn) {
+      wlWarn.classList.remove('show');
+    }
+
+    var sent = state.history.filter(function(t) { return t.dir === 'out' && (t.status === 'completed' || t.status === 'confirmed'); })
+      .reduce(function(s, t) { return s + t.val; }, 0);
+    var txCount = state.history.length;
+    var scheduled = state.recurring.filter(function(r) { return r.on; }).length;
+    var lastTx = state.history.length > 0 ? state.history[0] : null;
+
+    document.getElementById('wl-username').textContent = this._connected && this.getUsername() ? '@' + this.getUsername() : '—';
+    document.getElementById('wl-uid').textContent = this._connected && this.getUID() ? this.getUID() : '—';
+    document.getElementById('wl-network').textContent = 'Pi Mainnet';
+    document.getElementById('wl-status').textContent = this._connected ? 'Connected' : 'Not connected';
+
+    var sdkStatus = document.getElementById('wl-sdk-status');
+    var sdkDetail = document.getElementById('wl-sdk-detail');
+    if (this._initialized && this._connected) {
+      sdkStatus.textContent = 'SDK initialized · Authenticated';
+      sdkStatus.style.color = 'var(--success)';
+      sdkDetail.innerHTML = '<div>Pi SDK v2.0 · Mainnet · Authenticated as @' + this.getUsername() + '</div>' +
+        '<div style="margin-top:6px;font-size:12px;color:var(--text-muted)">Balance information currently unavailable via Pi SDK.</div>';
+    } else if (this._initialized) {
+      sdkStatus.textContent = 'SDK initialized · Not authenticated';
+      sdkStatus.style.color = 'var(--pi-amber)';
+      sdkDetail.innerHTML = '<div>SDK is initialized but wallet is not connected.</div>' +
+        '<div style="margin-top:6px;font-size:12px;color:var(--text-muted)">Connect your Pi Wallet to use payment features.</div>';
+    } else {
+      sdkStatus.textContent = 'SDK not initialized';
+      sdkStatus.style.color = 'var(--text-muted)';
+      sdkDetail.innerHTML = '<div>Balance information currently unavailable via Pi SDK.</div>' +
+        '<div style="margin-top:6px;font-size:12px;color:var(--text-muted)">Connect your Pi Wallet to view your account details.</div>';
+    }
+
+    document.getElementById('wl-total-sent').innerHTML = '<span class="pi-sym">π</span> ' + fmt(sent);
+    document.getElementById('wl-total-pi').innerHTML = '<span class="pi-sym">π</span> ' + fmt(sent);
+    document.getElementById('wl-tx-count').textContent = txCount;
+    document.getElementById('wl-tx-info').textContent = txCount > 0 ? 'Across ' + txCount + ' transaction(s)' : 'No transactions';
+    document.getElementById('wl-scheduled-info').textContent = scheduled + ' scheduled payment' + (scheduled !== 1 ? 's' : '');
+    document.getElementById('wl-last-tx').textContent = lastTx
+      ? 'Last: ' + lastTx.date + ' · ' + lastTx.status
+      : 'No transactions yet';
+  }
+};
+
+(function() {
+  PiWalletManager.detectPiBrowser();
+  if (PiWalletManager._isPiBrowser) {
+    PiWalletManager.initialize();
+  } else {
+    PiWalletManager.showBrowserWarning();
+  }
+})();
+
+const PAGES = {
+  dashboard: 'Dashboard',
+  payments: 'Payments',
+  csv: 'CSV Upload',
+  recurring: 'Recurring Payments',
+  history: 'On-Chain History',
+  reports: 'Reports',
+  sdk: 'SDK Integration',
+  wallet: 'Wallet',
+};
+
+// ── NAVIGATION ─────────────────────────────────────────────
+function show(id, btn) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  const panel = document.getElementById('panel-' + id);
+  if (panel) panel.classList.add('active');
+  document.getElementById('page-title').textContent = PAGES[id] || id;
+  if (btn) {
+    btn.classList.add('active');
+  } else {
+    document.querySelectorAll('.nav-item').forEach(n => {
+      if ((n.getAttribute('onclick') || '').includes("'" + id + "'")) n.classList.add('active');
+    });
+  }
+  if (id === 'dashboard') updateDashboard();
+  if (id === 'reports') updateReports();
+  if (id === 'wallet') updateWalletPanel();
+}
+
+// ── TOAST ──────────────────────────────────────────────────
+function toast(msg, duration = 2800) {
+  const el = document.getElementById('toast-el');
+  document.getElementById('toast-msg').textContent = msg;
+  el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), duration);
+}
+
+// ── DASHBOARD ──────────────────────────────────────────────
+function updateDashboard() {
+  const sent = state.history.filter(t => t.dir === 'out').reduce((s, t) => s + t.val, 0);
+  const recipients = new Set(state.history.filter(t => t.dir === 'out').map(t => t.name)).size;
+  const scheduled = state.recurring.filter(r => r.on).length;
+
+  document.getElementById('dash-sent').innerHTML = `<span class="pi-sym">π</span> ${fmt(sent)}`;
+  document.getElementById('dash-sent-sub').textContent = sent > 0 ? `Across ${state.history.filter(t=>t.dir==='out').length} transactions` : 'No payments yet';
+  document.getElementById('dash-recipients').textContent = recipients;
+  document.getElementById('dash-rec-sub').textContent = recipients > 0 ? `${recipients} unique recipient${recipients>1?'s':''}` : 'No recipients yet';
+  document.getElementById('dash-txcount').textContent = state.history.length;
+  document.getElementById('dash-scheduled').textContent = scheduled;
+  document.getElementById('dash-sched-sub').textContent = scheduled > 0 ? `${scheduled} active schedule${scheduled>1?'s':''}` : 'No schedules set';
+
+  // recent transactions
+  const recentEl = document.getElementById('dash-recent');
+  if (state.history.length === 0) {
+    recentEl.innerHTML = `<div class="empty-state"><i class="ti ti-clock"></i><div class="empty-state-title">No transactions yet</div><div class="empty-state-sub">Payments you send will appear here</div></div>`;
+  } else {
+    recentEl.innerHTML = '';
+    state.history.slice(0, 5).forEach(t => {
+      recentEl.innerHTML += txRow(t);
+    });
+  }
+
+  // category breakdown
+  const catEl = document.getElementById('dash-categories');
+  const cats = {};
+  state.history.filter(t => t.dir === 'out').forEach(t => { cats[t.cat] = (cats[t.cat] || 0) + t.val; });
+  const catKeys = Object.keys(cats);
+  if (catKeys.length === 0) {
+    catEl.innerHTML = `<div class="empty-state"><i class="ti ti-chart-pie"></i><div class="empty-state-title">No data yet</div><div class="empty-state-sub">Categories will appear after your first payment</div></div>`;
+  } else {
+    catEl.innerHTML = '<div style="display:flex;flex-direction:column;gap:8px">';
+    catKeys.forEach(k => {
+      catEl.innerHTML += `<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 12px;background:var(--surface-0);border-radius:8px;border:0.5px solid var(--border)">
+        <span class="pill pill-gray">${k}</span>
+        <span class="pi-amount" style="color:var(--pi-purple)">π ${fmt(cats[k])}</span>
+      </div>`;
+    });
+    catEl.innerHTML += '</div>';
+  }
+}
+
+// ── HELPERS ────────────────────────────────────────────────
+function fmt(n) {
+  return parseFloat(n).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+
+function fmtDate() {
+  return new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+    + ' · ' + new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+}
+
+function randomHash() {
+  return Array.from({ length: 20 }, () => Math.floor(Math.random() * 16).toString(16)).join('').toUpperCase();
+}
+
+function txRow(t) {
+  return `<div class="history-tx">
+    <div class="tx-icon ${t.dir}"><i class="ti ti-arrow-${t.dir==='out'?'up-right':'down-left'}"></i></div>
+    <div class="tx-info">
+      <div class="tx-name">${t.display}</div>
+      <div class="tx-hash">${t.hash}</div>
+    </div>
+    <div class="tx-right">
+      <div class="tx-amount ${t.dir}">${t.dir==='out'?'-':'+'} π ${fmt(t.val)}</div>
+      <div class="tx-date">${t.date}</div>
+    </div>
+  </div>`;
+}
+
+// ── PAYMENT QUEUE ──────────────────────────────────────────
+function renderQueue() {
+  const tbody = document.getElementById('payment-queue');
+  document.getElementById('queue-count').textContent = state.queue.length + ' in queue';
+  if (state.queue.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;color:var(--text-muted);padding:28px">Queue is empty. Add a payment above or import a CSV.</td></tr>`;
+    return;
+  }
+  tbody.innerHTML = '';
+  state.queue.forEach((r, i) => {
+    tbody.innerHTML += `<tr>
+      <td style="font-weight:500">${r.display}</td>
+      <td style="color:var(--pi-purple);font-family:monospace">${r.name}</td>
+      <td class="pi-amount">π ${fmt(r.val)}</td>
+      <td style="color:var(--text-secondary)">${r.memo}</td>
+      <td><span class="pill pill-gray">${r.cat}</span></td>
+      <td><span class="pill pill-warning">pending</span></td>
+      <td><button class="btn btn-sm" onclick="removeFromQueue(${i})"><i class="ti ti-trash" style="font-size:13px"></i></button></td>
+    </tr>`;
+  });
+}
+
+function addToQueue() {
+  const recipient = document.getElementById('pay-recipient').value.trim();
+  const amount = parseFloat(document.getElementById('pay-amount').value);
+  const memo = document.getElementById('pay-memo').value.trim();
+  const cat = document.getElementById('pay-category').value;
+  if (!recipient || !amount || amount <= 0) { toast('Enter a recipient and amount.'); return; }
+  const display = recipient.startsWith('@')
+    ? recipient.slice(1).replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase())
+    : 'External address';
+  state.queue.push({ name: recipient, display, val: amount, memo: memo || '—', cat });
+  renderQueue();
+  document.getElementById('pay-recipient').value = '';
+  document.getElementById('pay-amount').value = '';
+  document.getElementById('pay-memo').value = '';
+  toast(`Added to queue — π ${fmt(amount)}`);
+}
+
+function removeFromQueue(i) {
+  state.queue.splice(i, 1);
+  renderQueue();
+}
+
+function clearQueue() {
+  state.queue = [];
+  renderQueue();
+  toast('Queue cleared.');
+}
+
+function processQueue() {
+  if (state.queue.length === 0) { toast('Queue is empty.'); return; }
+  if (PiWalletManager._isPiBrowser && PiWalletManager.isConnected()) {
+    PiWalletManager.processPayroll(state.queue);
+    return;
+  }
+  if (!PiWalletManager._isPiBrowser) {
+    toast('Pi Browser required for Pi Wallet payments. Sending as offline record...', 3500);
+  }
+  const total = state.queue.reduce((s, r) => s + r.val, 0);
+  const count = state.queue.length;
+  state.queue.forEach(r => {
+    state.history.unshift({
+      dir: 'out', name: r.name, display: r.display,
+      hash: randomHash(), val: r.val, piPaymentId: null, txHash: null,
+      date: fmtDate(), status: 'confirmed', cat: r.cat, memo: r.memo,
+      username: r.name, authTime: new Date().toISOString(),
+    });
+  });
+  state.queue = [];
+  renderQueue();
+  renderHistory();
+  updateReports();
+  updateWalletPanel();
+  toast(`✓ ${count} payment${count > 1 ? 's' : ''} sent — π ${fmt(total)} total`);
+}
+
+renderQueue();
+
+// ── CSV ────────────────────────────────────────────────────
+function handleUploadClick() {
+  document.getElementById('csv-file-input').click();
+}
+
+function handleFileSelect(input) {
+  const file = input.files[0];
+  if (!file) return;
+  const zone = document.getElementById('upload-zone');
+  zone.style.borderColor = 'var(--pi-purple)';
+  zone.style.background = 'var(--pi-purple-pale)';
+  zone.innerHTML = `<i class="ti ti-loader" style="animation:spin 1s linear infinite"></i><div class="upload-title">Processing ${file.name}…</div>`;
+
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    const text = e.target.result;
+    parseCSV(text, file.name);
+  };
+  reader.readAsText(file);
+}
+
+function parseCSV(text, filename) {
+  const lines = text.trim().split('\n').filter(l => l.trim());
+  if (lines.length < 2) { toast('CSV appears empty or invalid.'); resetUploadZone(); return; }
+
+  const headers = lines[0].split(',').map(h => h.trim().toLowerCase().replace(/[^a-z_]/g,''));
+  const nameIdx = headers.findIndex(h => h.includes('name') && !h.includes('user'));
+  const userIdx = headers.findIndex(h => h.includes('user') || h.includes('username') || h.includes('pi'));
+  const amtIdx  = headers.findIndex(h => h.includes('amount') || h.includes('valor') || h.includes('val'));
+  const memoIdx = headers.findIndex(h => h.includes('memo') || h.includes('note') || h.includes('ref'));
+  const catIdx  = headers.findIndex(h => h.includes('cat') || h.includes('type'));
+
+  const rows = [];
+  let parseErrors = 0;
+
+  lines.slice(1).forEach((line, i) => {
+    const cols = line.split(',').map(c => c.trim().replace(/^["']|["']$/g, ''));
+    const name  = nameIdx >= 0 ? cols[nameIdx] : 'Row ' + (i + 2);
+    const user  = userIdx >= 0 ? cols[userIdx] : '';
+    const rawAmt = amtIdx >= 0 ? cols[amtIdx] : '';
+    const amount = parseFloat(rawAmt.replace(/[^\d.]/g, ''));
+    const memo   = memoIdx >= 0 ? cols[memoIdx] : '—';
+    const cat    = catIdx >= 0 ? cols[catIdx] : 'Other';
+
+    const valid = user.length > 0 && !isNaN(amount) && amount > 0;
+    if (!valid) parseErrors++;
+    rows.push({ name, user, val: amount || 0, memo, cat, valid });
+  });
+
+  state.csvRows = rows;
+
+  const zone = document.getElementById('upload-zone');
+  zone.innerHTML = `<i class="ti ti-check" style="color:var(--success)"></i>
+    <div class="upload-title">${filename} loaded</div>
+    <div class="upload-sub">${rows.length} row${rows.length !== 1 ? 's' : ''} detected${parseErrors > 0 ? ` · ${parseErrors} with issues` : ''}</div>`;
+
+  const preview = document.getElementById('csv-preview');
+  const body = document.getElementById('csv-body');
+  const validRows = rows.filter(r => r.valid);
+  const total = validRows.reduce((s, r) => s + r.val, 0);
+  document.getElementById('csv-title').textContent =
+    `Preview — ${rows.length} rows · π ${fmt(total)} total (${validRows.length} valid)`;
+
+  body.innerHTML = '';
+  rows.forEach((row, i) => {
+    const cls = row.valid ? 'pill-success' : 'pill-warning';
+    const label = row.valid ? '✓ valid' : '⚠ invalid';
+    body.innerHTML += `<tr>
+      <td style="color:var(--text-muted)">${i + 1}</td>
+      <td style="font-weight:500">${row.name}</td>
+      <td style="color:var(--pi-purple);font-family:monospace">${row.user || '—'}</td>
+      <td class="pi-amount">${row.valid ? 'π ' + fmt(row.val) : '—'}</td>
+      <td style="color:var(--text-secondary)">${row.memo}</td>
+      <td><span class="pill pill-gray">${row.cat}</span></td>
+      <td><span class="pill ${cls}">${label}</span></td>
+    </tr>`;
+  });
+
+  preview.style.display = 'block';
+  animateProgress(100, `Ready — ${validRows.length} valid, ${parseErrors} with issues`);
+  toast(`CSV processed — ${rows.length} rows read`);
+}
+
+function resetUploadZone() {
+  const zone = document.getElementById('upload-zone');
+  zone.style.borderColor = '';
+  zone.style.background = '';
+  zone.innerHTML = `<i class="ti ti-cloud-upload"></i>
+    <div class="upload-title">Drag a CSV here or click to select</div>
+    <div class="upload-sub">Expected columns: name, pi_username, amount, memo, category</div>`;
+}
+
+function animateProgress(target, label) {
+  let pct = 0;
+  const fill = document.getElementById('prog-fill');
+  const pPct  = document.getElementById('csv-prog-pct');
+  const pLbl  = document.getElementById('csv-prog-label');
+  const iv = setInterval(() => {
+    pct = Math.min(pct + 5, target);
+    fill.style.width = pct + '%';
+    pPct.textContent = pct + '%';
+    if (pct >= target) { clearInterval(iv); pLbl.textContent = label; }
+  }, 40);
+}
+
+function sendCsvBatch() {
+  const valid = state.csvRows.filter(r => r.valid);
+  if (valid.length === 0) { toast('No valid rows to send.'); return; }
+  if (PiWalletManager._isPiBrowser && PiWalletManager.isConnected()) {
+    const queueItems = valid.map(function(r) {
+      var display = r.name || (r.user.startsWith('@') ? r.user.slice(1).replace(/_/g,' ') : r.user);
+      return { name: r.user, display: display, val: r.val, memo: r.memo, cat: r.cat };
+    });
+    PiWalletManager.processPayroll(queueItems);
+    return;
+  }
+  if (!PiWalletManager._isPiBrowser) {
+    toast('Pi Browser required for Pi Wallet payments. Sending as offline records...', 3500);
+  }
+  let i = 0;
+  animateProgress(0, 'Sending…');
+  const iv = setInterval(() => {
+    if (i >= valid.length) {
+      clearInterval(iv);
+      animateProgress(100, `✓ ${valid.length} payment${valid.length > 1 ? 's' : ''} sent`);
+      renderHistory();
+      updateReports();
+      updateWalletPanel();
+      toast(`✓ Batch sent — ${valid.length} recipients`);
+      return;
+    }
+    const r = valid[i];
+    const display = r.name || (r.user.startsWith('@') ? r.user.slice(1).replace(/_/g,' ') : r.user);
+    state.history.unshift({
+      dir: 'out', name: r.user, display,
+      hash: randomHash(), val: r.val, piPaymentId: null, txHash: null,
+      date: fmtDate(), status: 'confirmed', cat: r.cat, memo: r.memo,
+      username: r.user, authTime: new Date().toISOString(),
+    });
+    i++;
+  }, 300);
+}
+
+function downloadTemplate() {
+  const csv = 'name,pi_username,amount,memo,category\nJohn Smith,@john_smith,350.00,July 2025 salary,Salary\nJane Doe,@jane_doe,280.00,Freelance design,Freelance';
+  const blob = new Blob([csv], { type: 'text/csv' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'pi-payroll-template.csv';
+  a.click();
+  toast('Template downloaded.');
+}
+
+// ── RECURRING ──────────────────────────────────────────────
+function renderRecurring() {
+  const el = document.getElementById('recurring-list');
+  if (state.recurring.length === 0) {
+    el.innerHTML = `<div class="empty-state"><i class="ti ti-repeat"></i><div class="empty-state-title">No recurring payments</div><div class="empty-state-sub">Create a schedule above to automate payroll</div></div>`;
+    return;
+  }
+  el.innerHTML = '';
+  state.recurring.forEach(r => {
+    const initials = r.display.split(' ').map(w => w[0] || '').join('').slice(0, 2).toUpperCase() || '??';
+    el.innerHTML += `<div class="recurring-card">
+      <div class="row-gap">
+        <div class="user-av" style="background:var(--pi-purple);color:#fff;font-size:11px;font-weight:700;width:34px;height:34px;flex-shrink:0">${initials}</div>
+        <div>
+          <div style="font-size:13px;font-weight:500;color:var(--text-primary)">${r.name}</div>
+          <div style="font-size:11px;color:var(--text-secondary)">${r.freq} · ${r.memo} · next: ${r.next}</div>
+        </div>
+      </div>
+      <div class="row-gap">
+        <span class="pi-amount" style="font-size:13px;color:var(--pi-purple)">π ${fmt(r.val)}</span>
+        <button class="toggle ${r.on ? 'on' : ''}" onclick="toggleRecurring(${r.id})" aria-label="Toggle schedule"></button>
+      </div>
+    </div>`;
+  });
+}
+
+function toggleRecurring(id) {
+  const r = state.recurring.find(x => x.id === id);
+  if (r) {
+    r.on = !r.on;
+    renderRecurring();
+    updateDashboard();
+    toast(r.on ? `✓ ${r.name} enabled` : `${r.name} paused`);
+  }
+}
+
+function addRecurring() {
+  const name = document.getElementById('rec-recipient').value.trim();
+  const val  = parseFloat(document.getElementById('rec-amount').value);
+  const freq = document.getElementById('rec-freq').value;
+  const date = document.getElementById('rec-date').value;
+  const memo = document.getElementById('rec-memo').value.trim();
+  const cat  = document.getElementById('rec-category').value;
+  if (!name || !val || val <= 0) { toast('Enter a recipient and amount.'); return; }
+  const display = name.startsWith('@')
+    ? name.slice(1).replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase())
+    : name;
+  const next = date ? new Date(date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : 'TBD';
+  state.recurring.push({ id: Date.now(), name, display, val, freq, next, memo: memo || '—', cat, on: true });
+  renderRecurring();
+  updateDashboard();
+  document.getElementById('rec-recipient').value = '';
+  document.getElementById('rec-amount').value = '';
+  document.getElementById('rec-date').value = '';
+  document.getElementById('rec-memo').value = '';
+  toast(`✓ Schedule created — ${name} · π ${fmt(val)} ${freq.toLowerCase()}`);
+}
+
+renderRecurring();
+
+// ── HISTORY ────────────────────────────────────────────────
+function renderHistory(filter = '', statusFilter = '') {
+  const el = document.getElementById('history-list');
+  let items = state.history;
+  if (filter) {
+    const q = filter.toLowerCase();
+    items = items.filter(t =>
+      t.name.toLowerCase().includes(q) ||
+      t.display.toLowerCase().includes(q) ||
+      t.hash.toLowerCase().includes(q) ||
+      (t.piPaymentId && t.piPaymentId.toLowerCase().includes(q)) ||
+      (t.txHash && t.txHash.toLowerCase().includes(q)) ||
+      t.val.toString().includes(q)
+    );
+  }
+  if (statusFilter) items = items.filter(t => t.status === statusFilter);
+  if (items.length === 0) {
+    el.innerHTML = state.history.length === 0
+      ? `<div class="empty-state"><i class="ti ti-history"></i><div class="empty-state-title">No transactions yet</div><div class="empty-state-sub">Sent payments will appear here with their on-chain hashes</div></div>`
+      : `<div style="text-align:center;color:var(--text-muted);padding:32px">No transactions match your filter.</div>`;
+    return;
+  }
+  el.innerHTML = '';
+  items.forEach(t => {
+    var sc;
+    switch (t.status) {
+      case 'completed': case 'confirmed': sc = 'pill-success'; break;
+      case 'pending': case 'approved': sc = 'pill-warning'; break;
+      case 'cancelled': sc = 'pill-gray'; break;
+      case 'failed': sc = 'pill-danger'; break;
+      default: sc = 'pill-gray';
+    }
+    var hashDisplay = t.txHash || t.piPaymentId || t.hash;
+    var hashLabel = t.txHash ? ('TX: ' + t.txHash) : (t.piPaymentId ? ('Pi ID: ' + t.piPaymentId) : t.hash);
+    var memoStr = t.memo && t.memo !== '—' ? t.memo : '';
+    el.innerHTML += `<div class="history-tx">
+      <div class="tx-icon ${t.dir}"><i class="ti ti-arrow-${t.dir==='out'?'up-right':'down-left'}"></i></div>
+      <div class="tx-info">
+        <div class="tx-name">${t.display}</div>
+        <div class="tx-hash" title="${hashLabel}">${hashLabel}</div>
+        ${memoStr ? '<div style="font-size:10px;color:var(--text-muted);margin-top:1px">' + memoStr + '</div>' : ''}
+      </div>
+      <div class="row-gap">
+        <span class="pill pill-gray">${t.cat}</span>
+        <span class="pill ${sc}">${t.status}</span>
+        <div class="tx-right">
+          <div class="tx-amount ${t.dir}">${t.dir==='out'?'-':'+'} π ${fmt(t.val)}</div>
+          <div class="tx-date">${t.date}</div>
+        </div>
+      </div>
+    </div>`;
+  });
+}
+
+function exportHistory() {
+  if (state.history.length === 0) { toast('No transactions to export.'); return; }
+  const header = 'date,type,name,username,pi_payment_id,tx_hash,hash,amount,memo,status,category,pi_username\n';
+  const rows = state.history.map(t =>
+    `"${t.date}",${t.dir},"${t.display}",${t.name},${t.piPaymentId||''},${t.txHash||''},${t.hash},${t.val},"${t.memo||''}",${t.status},${t.cat},${t.username||t.name}`
+  ).join('\n');
+  const blob = new Blob([header + rows], { type: 'text/csv' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'pi-payroll-history.csv';
+  a.click();
+  toast('History exported.');
+}
+
+renderHistory();
+
+// ── REPORTS ────────────────────────────────────────────────
+function updateReports() {
+  const outgoing = state.history.filter(t => t.dir === 'out');
+  const total = outgoing.reduce((s, t) => s + t.val, 0);
+  const completed = outgoing.filter(t => t.status === 'completed' || t.status === 'confirmed').length;
+  const rate = outgoing.length > 0 ? Math.round((completed / outgoing.length) * 100) : null;
+  const uniq = new Set(outgoing.map(t => t.name)).size;
+
+  // top recipient
+  const byUser = {};
+  outgoing.forEach(t => { byUser[t.name] = (byUser[t.name] || { val: 0, display: t.display }); byUser[t.name].val += t.val; });
+  const topEntry = Object.entries(byUser).sort((a, b) => b[1].val - a[1].val)[0];
+
+  // total payroll cycles (unique dates with outgoing payments)
+  const cycles = new Set(outgoing.map(function(t) {
+    var d = t.date || '';
+    return d.split(' · ')[0] || d;
+  })).size;
+  const avgAmount = outgoing.length > 0 ? total / outgoing.length : 0;
+  const totalCompleted = outgoing.filter(function(t) { return t.status === 'completed'; }).length;
+
+  document.getElementById('rep-total').innerHTML = '<span class="pi-sym">π</span> ' + fmt(total);
+  document.getElementById('rep-top').textContent = topEntry ? topEntry[1].display : '—';
+  document.getElementById('rep-top-sub').textContent = topEntry ? 'π ' + fmt(topEntry[1].val) + ' received' : 'No data yet';
+  document.getElementById('rep-rate').textContent = rate !== null ? rate + '%' : '—';
+  document.getElementById('rep-rate-sub').textContent = rate !== null ? completed + ' of ' + outgoing.length + ' completed' : 'No transactions yet';
+  document.getElementById('rep-uniq').textContent = uniq;
+
+  var rl = document.getElementById('report-list');
+  if (state.history.length === 0) {
+    rl.innerHTML = '<div class="empty-state"><i class="ti ti-file-description"></i><div class="empty-state-title">No reports yet</div><div class="empty-state-sub">Reports are generated automatically after each payment cycle</div></div>';
+    return;
+  }
+  rl.innerHTML = '';
+  var now = new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+  var reportItems = [
+    { name: 'Payroll Report — ' + now, meta: outgoing.length + ' recipient' + (outgoing.length !== 1 ? 's' : '') + ' · π ' + fmt(total), icon: 'ti-file-description' },
+    { name: 'On-Chain Statement', meta: state.history.length + ' total transaction' + (state.history.length !== 1 ? 's' : '') + ' · all time', icon: 'ti-report-analytics' },
+    { name: 'Payroll Summary', meta: cycles + ' payroll cycle' + (cycles !== 1 ? 's' : '') + ' · avg π ' + fmt(avgAmount) + ' · ' + uniq + ' employee' + (uniq !== 1 ? 's' : '') + ' paid', icon: 'ti-file-text' },
+    { name: 'Category Breakdown', meta: Object.keys(byUser).length > 0 ? 'Categories from ' + outgoing.length + ' payments' : 'No categories yet', icon: 'ti-chart-pie' },
+    { name: 'Full History Export', meta: state.history.length + ' rows · CSV format', icon: 'ti-file-spreadsheet' },
+    { name: 'Completed Transactions', meta: totalCompleted + ' completed of ' + outgoing.length + ' · ' + (rate || 0) + '% success rate', icon: 'ti-check' },
+  ];
+  reportItems.forEach(function(r) {
+    rl.innerHTML += '<div class="report-row">' +
+      '<div class="report-icon"><i class="ti ' + r.icon + '"></i></div>' +
+      '<div style="flex:1"><div class="report-name">' + r.name + '</div><div class="report-meta">' + r.meta + '</div></div>' +
+      '<button class="btn btn-sm" onclick="exportHistory()"><i class="ti ti-download"></i>Download</button>' +
+    '</div>';
+  });
+}
+
+updateReports();
+updateDashboard();
+</script>
+</body>
+</html>
