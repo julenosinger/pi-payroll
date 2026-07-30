@@ -3,1766 +3,1163 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Pi Payroll — Pi Network Payroll System</title>
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><text y='26' font-size='28'>π</text></svg>" />
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css" />
+<title>PioneerPIX · Pi Network Payments</title>
 <script src="https://sdk.minepi.com/pi-sdk.js"></script>
 <style>
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-:root{
-  --pi-purple:#6C3CE1;--pi-purple-light:#8B5CF6;--pi-purple-pale:#EDE9FF;--pi-purple-mid:#4F29B8;
-  --pi-amber:#D97706;--pi-amber-light:#FCD34D;--pi-amber-pale:#FFFBEB;
-  --pi-dark:#1C1033;--pi-dark2:#2D1E5C;
-  --success:#059669;--success-bg:#ECFDF5;--success-text:#065F46;
-  --danger:#DC2626;--danger-bg:#FEE2E2;
-  --warning-bg:#FFFBEB;--warning-text:#92400E;
-  --surface-0:#F5F4F1;--surface-1:#F0EEE9;--surface-2:#FFFFFF;
-  --text-primary:#1A1916;--text-secondary:#6B6A65;--text-muted:#9B9A96;
-  --border:rgba(0,0,0,0.09);--border-strong:rgba(0,0,0,0.15);
-  --radius:8px;
+:root {
+  --pi-purple: #7B5EA7; --pi-purple-light: #9B7EC8; --pi-purple-dim: #3d2e5a;
+  --pi-gold: #F0B429; --pi-gold-dim: #7a5a0e;
+  --bg-base: #0d0b14; --bg-card: #16121f; --bg-card2: #1e192c; --bg-card3: #241e34;
+  --border: rgba(123,94,167,0.18); --border-strong: rgba(123,94,167,0.38);
+  --text-primary: #f0ecfa; --text-secondary: #9b93b5; --text-muted: #5e5478;
+  --green: #34d399; --green-dim: #0d3d2a; --amber: #f59e0b; --red: #f87171;
+  --sidebar-w: 220px; --radius: 10px;
 }
 
-@media(prefers-color-scheme:dark){
-  :root{
-    --pi-purple-pale:#2A1F54;--pi-amber-pale:#2A1F00;
-    --surface-0:#111010;--surface-1:#1A1917;--surface-2:#242320;
-    --text-primary:#F0EEE8;--text-secondary:#9B9A96;--text-muted:#6B6A65;
-    --border:rgba(255,255,255,0.08);--border-strong:rgba(255,255,255,0.14);
-    --success-bg:#052E1C;--success-text:#6EE7B7;
-    --warning-bg:#2A1800;--warning-text:#FCD34D;--danger-bg:#2D0A0A;
-  }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  background: var(--bg-base); color: var(--text-primary); min-height: 100vh;
+  display: flex; font-size: 14px; line-height: 1.5;
 }
-
-html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;background:var(--surface-0);color:var(--text-primary);font-size:14px;line-height:1.5}
-
-.app{display:flex;height:100vh;overflow:hidden}
 
 /* SIDEBAR */
-.sidebar{width:220px;background:var(--pi-dark);display:flex;flex-direction:column;flex-shrink:0;overflow-y:auto}
-.sidebar-logo{padding:22px 18px 14px;border-bottom:0.5px solid rgba(255,255,255,0.08)}
-.logo-row{display:flex;align-items:center;gap:10px}
-.logo-pi{font-size:28px;font-weight:700;color:var(--pi-amber-light);font-family:'Georgia',serif;line-height:1}
-.logo-text{font-size:15px;font-weight:600;color:#fff;letter-spacing:-0.01em}
-.logo-sub{font-size:10px;color:rgba(255,255,255,0.38);margin-top:2px}
-.nav{flex:1;padding:14px 10px}
-.nav-section{font-size:10px;color:rgba(255,255,255,0.28);text-transform:uppercase;letter-spacing:0.1em;padding:12px 8px 5px;font-weight:600}
-.nav-item{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:var(--radius);cursor:pointer;font-size:13px;color:rgba(255,255,255,0.55);transition:background 0.12s,color 0.12s;margin-bottom:2px;border:none;background:none;width:100%;text-align:left;font-family:inherit}
-.nav-item:hover{background:rgba(255,255,255,0.07);color:#fff}
-.nav-item.active{background:var(--pi-purple);color:#fff}
-.nav-item i{font-size:17px;flex-shrink:0}
-.sidebar-footer{padding:12px 10px 16px;border-top:0.5px solid rgba(255,255,255,0.08)}
-.user-row{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:var(--radius);background:rgba(255,255,255,0.06)}
-.user-av{width:30px;height:30px;border-radius:50%;background:var(--pi-purple);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff;flex-shrink:0}
-.user-name{font-size:12px;color:#fff;font-weight:500}
-.user-role{font-size:10px;color:rgba(255,255,255,0.38);margin-top:1px}
+.sidebar {
+  width: var(--sidebar-w); min-height: 100vh; background: var(--bg-card);
+  border-right: 1px solid var(--border); display: flex; flex-direction: column;
+  flex-shrink: 0; position: sticky; top: 0; height: 100vh; overflow-y: auto;
+  overflow-x: hidden; transition: width .25s ease; z-index: 50;
+}
+.sidebar.collapsed { width: 56px; }
+.sidebar.collapsed .logo-text,
+.sidebar.collapsed .sidebar-label,
+.sidebar.collapsed .nav-item span,
+.sidebar.collapsed .nav-badge,
+.sidebar.collapsed .wallet-label,
+.sidebar.collapsed .wallet-addr,
+.sidebar.collapsed .wallet-tags,
+.sidebar.collapsed .wallet-unit { display: none; }
+.sidebar.collapsed .nav-item { justify-content: center; padding: 10px 6px; }
+.sidebar.collapsed .nav-icon { font-size: 18px; width: auto; }
+.sidebar.collapsed .sidebar-logo { padding: 16px 10px 12px; justify-content: center; }
+.sidebar.collapsed .sidebar-wallet { padding: 10px 6px 14px; text-align: center; }
+.sidebar.collapsed .sidebar-wallet .wallet-balance { font-size: 15px; }
+
+.sidebar-backdrop { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.55); z-index: 49; }
+.sidebar-toggle {
+  display: none; width: 32px; height: 32px; border-radius: 7px;
+  background: var(--bg-card2); border: 1px solid var(--border); cursor: pointer;
+  align-items: center; justify-content: center; color: var(--text-secondary);
+  font-size: 16px; flex-shrink: 0; transition: background .15s; line-height: 1;
+}
+.sidebar-toggle:hover { background: var(--pi-purple-dim); color: var(--text-primary); }
+.sidebar-logo { display: flex; align-items: center; gap: 10px; padding: 20px 18px 16px; border-bottom: 1px solid var(--border); }
+.logo-icon { width: 32px; height: 32px; background: linear-gradient(135deg, var(--pi-purple), var(--pi-gold)); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 18px; font-weight: 800; color: #fff; letter-spacing: -1px; }
+.logo-text { font-size: 17px; font-weight: 700; color: var(--text-primary); }
+.sidebar-section { padding: 10px 10px 4px; }
+.sidebar-label { font-size: 10px; font-weight: 600; letter-spacing: .08em; color: var(--text-muted); text-transform: uppercase; padding: 0 8px 6px; }
+.nav-item { display: flex; align-items: center; gap: 9px; padding: 8px 10px; border-radius: 7px; cursor: pointer; color: var(--text-secondary); font-size: 13.5px; transition: background .15s, color .15s; border: none; background: none; width: 100%; text-align: left; font-family: inherit; }
+.nav-item:hover { background: var(--bg-card2); color: var(--text-primary); }
+.nav-item.active { background: var(--pi-purple-dim); color: var(--text-primary); }
+.nav-icon { font-size: 16px; width: 18px; text-align: center; }
+.nav-badge { margin-left: auto; font-size: 10px; font-weight: 600; padding: 2px 7px; border-radius: 20px; }
+.badge-new { background: var(--pi-gold-dim); color: var(--pi-gold); }
+.badge-kit { background: var(--pi-purple-dim); color: var(--pi-purple-light); }
+.badge-pay { background: rgba(52,211,153,.15); color: var(--green); }
+
+.sidebar-wallet { margin-top: auto; padding: 14px 14px 18px; border-top: 1px solid var(--border); }
+.wallet-label { font-size: 10px; color: var(--text-muted); letter-spacing: .06em; text-transform: uppercase; margin-bottom: 4px; }
+.wallet-balance { font-size: 26px; font-weight: 700; color: var(--text-primary); letter-spacing: -.5px; }
+.wallet-unit { font-size: 13px; color: var(--pi-gold); font-weight: 600; }
+.wallet-addr { font-size: 11px; color: var(--text-muted); margin-top: 4px; font-family: monospace; }
+.wallet-tags { display: flex; gap: 5px; margin-top: 8px; flex-wrap: wrap; }
+.wallet-tag { font-size: 10px; padding: 2px 8px; border-radius: 20px; border: 1px solid var(--border-strong); color: var(--text-secondary); }
 
 /* MAIN */
-.main{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0}
-.topbar{background:var(--surface-2);border-bottom:0.5px solid var(--border);padding:0 28px;height:56px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
-.page-title{font-size:15px;font-weight:600;color:var(--text-primary)}
-.topbar-right{display:flex;align-items:center;gap:10px}
-.badge-network{display:flex;align-items:center;gap:6px;background:var(--pi-amber-pale);border:0.5px solid #FDE68A;color:var(--pi-amber);padding:5px 12px;border-radius:20px;font-size:12px;font-weight:500}
-.net-dot{width:7px;height:7px;border-radius:50%;background:var(--success);animation:pulse 2s infinite}
-@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.35}}
-.content{flex:1;overflow-y:auto;padding:24px 28px}
+.main { flex: 1; display: flex; flex-direction: column; min-height: 100vh; overflow: hidden; }
+.topbar { display: flex; align-items: center; gap: 16px; padding: 0 28px; height: 56px; border-bottom: 1px solid var(--border); background: var(--bg-base); position: sticky; top: 0; z-index: 10; }
+.topbar-title { font-size: 15px; font-weight: 600; color: var(--text-primary); }
+.topbar-right { display: flex; align-items: center; gap: 10px; margin-left: auto; }
+.network-pill { display: flex; align-items: center; gap: 6px; padding: 5px 12px; border-radius: 20px; border: 1px solid var(--border-strong); font-size: 12px; color: var(--text-secondary); cursor: pointer; }
+.dot { width: 7px; height: 7px; border-radius: 50%; }
+.dot-purple { background: var(--pi-purple-light); }
+.dot-green { background: var(--green); }
+.dot-amber { background: var(--amber); }
+.route-dot-live { width: 10px; height: 10px; border-radius: 50%; }
 
-/* PANELS */
-.panel{display:none}
-.panel.active{display:block}
+.page { padding: 24px 28px; flex: 1; overflow-y: auto; }
 
-/* STATS */
-.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px}
-.stat-card{background:var(--surface-2);border:0.5px solid var(--border);border-radius:12px;padding:16px 18px}
-.stat-label{font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.06em;font-weight:600;margin-bottom:8px}
-.stat-value{font-size:24px;font-weight:600;color:var(--text-primary);font-family:'SF Mono','Fira Code',monospace;line-height:1.1}
-.stat-sub{font-size:11px;color:var(--text-muted);margin-top:5px}
-.stat-up{color:var(--success)}
-.stat-down{color:var(--danger)}
+/* PAGE HEADER */
+.page-header { margin-bottom: 22px; display: flex; align-items: center; justify-content: space-between; }
+.page-title { font-size: 20px; font-weight: 700; display: flex; align-items: center; gap: 10px; }
+.page-sub { font-size: 13px; color: var(--text-secondary); margin-top: 4px; }
 
 /* CARDS */
-.card{background:var(--surface-2);border:0.5px solid var(--border);border-radius:12px;padding:18px 20px}
-.card+.card{margin-top:14px}
-.section-title{font-size:13px;font-weight:600;color:var(--text-secondary);margin-bottom:14px;display:flex;align-items:center;justify-content:space-between}
-
-/* TABLE */
-.table-wrap{overflow-x:auto}
-table{width:100%;border-collapse:collapse;font-size:13px}
-th{text-align:left;padding:9px 14px;font-size:10px;font-weight:700;color:var(--text-muted);border-bottom:0.5px solid var(--border);text-transform:uppercase;letter-spacing:0.06em;white-space:nowrap}
-td{padding:11px 14px;border-bottom:0.5px solid var(--border);color:var(--text-primary);vertical-align:middle}
-tr:last-child td{border-bottom:none}
-tbody tr:hover td{background:var(--surface-0)}
-
-/* PILLS */
-.pill{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;white-space:nowrap}
-.pill-success{background:var(--success-bg);color:var(--success-text)}
-.pill-warning{background:var(--warning-bg);color:var(--warning-text)}
-.pill-purple{background:var(--pi-purple-pale);color:var(--pi-purple)}
-.pill-gray{background:var(--surface-1);color:var(--text-secondary)}
-.pill-danger{background:var(--danger-bg);color:var(--danger)}
+.card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 18px; margin-bottom: 14px; }
+.card-title { font-size: 12px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 14px; }
 
 /* BUTTONS */
-.btn{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:var(--radius);font-size:13px;font-weight:500;cursor:pointer;border:0.5px solid var(--border-strong);background:transparent;color:var(--text-primary);transition:background 0.12s,border-color 0.12s;font-family:inherit;text-decoration:none}
-.btn:hover{background:var(--surface-1)}
-.btn-primary{background:var(--pi-purple);color:#fff;border-color:var(--pi-purple)}
-.btn-primary:hover{background:var(--pi-purple-mid);border-color:var(--pi-purple-mid)}
-.btn-sm{padding:6px 12px;font-size:12px}
-.btn-amber{background:var(--pi-amber-light);color:#1A1000;border:none;font-weight:600}
-.btn-amber:hover{background:#FDE68A}
-.btn-group{display:flex;gap:8px;flex-wrap:wrap}
+.btn { display: inline-flex; align-items: center; gap: 6px; padding: 8px 16px; border-radius: 8px; font-size: 13px; font-weight: 500; cursor: pointer; border: 1px solid var(--border-strong); background: var(--bg-card3); color: var(--text-primary); transition: background .15s, border-color .15s; font-family: inherit; text-decoration: none; white-space: nowrap; }
+.btn:hover { background: var(--pi-purple-dim); border-color: var(--pi-purple); }
+.btn-primary { background: linear-gradient(135deg, var(--pi-purple), #5a3f8c); border: none; color: #fff; font-weight: 600; }
+.btn-primary:hover { opacity: .9; }
+.btn-sm { padding: 5px 10px; font-size: 11px; }
+.btn-danger { background: rgba(248,113,113,.15); border-color: rgba(248,113,113,.3); color: var(--red); }
+.btn-danger:hover { background: rgba(248,113,113,.25); }
+.btn-group { display: flex; gap: 8px; flex-wrap: wrap; }
 
 /* FORM */
-.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:16px}
-.form-group label{font-size:12px;color:var(--text-secondary);display:block;margin-bottom:6px;font-weight:600}
-.input{width:100%;padding:9px 12px;border:0.5px solid var(--border-strong);border-radius:var(--radius);font-size:13px;background:var(--surface-2);color:var(--text-primary);font-family:inherit;transition:border-color 0.12s,box-shadow 0.12s;outline:none}
-.input:focus{border-color:var(--pi-purple);box-shadow:0 0 0 3px rgba(108,60,225,0.12)}
-select.input{cursor:pointer}
+.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 14px; }
+.form-grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; margin-bottom: 14px; }
+.form-group label { font-size: 11px; color: var(--text-muted); display: block; margin-bottom: 6px; text-transform: uppercase; letter-spacing: .06em; font-weight: 600; }
+.input { width: 100%; padding: 9px 12px; border: 1px solid var(--border-strong); border-radius: 8px; font-size: 13px; background: var(--bg-card2); color: var(--text-primary); font-family: inherit; outline: none; transition: border-color .15s; }
+.input:focus { border-color: var(--pi-purple); }
+select.input { cursor: pointer; }
+select.input option { background: var(--bg-card3); color: var(--text-primary); }
 
-/* UPLOAD */
-.upload-zone{border:1.5px dashed var(--border-strong);border-radius:12px;padding:40px 24px;text-align:center;cursor:pointer;transition:all 0.15s;margin-bottom:18px}
-.upload-zone:hover{border-color:var(--pi-purple);background:var(--pi-purple-pale)}
-.upload-zone i{font-size:36px;color:var(--text-muted);margin-bottom:10px;display:block}
-.upload-title{font-size:14px;font-weight:600;color:var(--text-primary);margin-bottom:5px}
-.upload-sub{font-size:12px;color:var(--text-secondary)}
+/* AMOUNT INPUT */
+.amount-input-row { display: flex; align-items: center; background: var(--bg-card2); border: 1px solid var(--border-strong); border-radius: 9px; padding: 10px 14px; margin-bottom: 10px; gap: 8px; }
+.amount-input-row:focus-within { border-color: var(--pi-purple); }
+.amount-sym { font-size: 20px; color: var(--text-muted); }
+.amount-input { flex: 1; background: none; border: none; outline: none; font-size: 24px; font-weight: 700; color: var(--text-primary); font-family: inherit; width: 0; }
+.usd-approx { font-size: 12px; color: var(--text-muted); margin-bottom: 12px; }
 
-/* TOGGLE */
-.toggle{width:36px;height:20px;border-radius:10px;background:var(--border-strong);cursor:pointer;position:relative;flex-shrink:0;border:none;padding:0;transition:background 0.2s}
-.toggle.on{background:var(--pi-purple)}
-.toggle::after{content:'';position:absolute;width:14px;height:14px;background:#fff;border-radius:50%;top:3px;left:3px;transition:transform 0.2s;box-shadow:0 1px 3px rgba(0,0,0,0.2)}
-.toggle.on::after{transform:translateX(16px)}
+.pct-row { display: grid; grid-template-columns: repeat(4,1fr); gap: 7px; margin-bottom: 14px; }
+.pct-btn { background: var(--bg-card2); border: 1px solid var(--border); border-radius: 7px; padding: 7px 0; text-align: center; cursor: pointer; font-size: 12px; font-weight: 600; color: var(--text-secondary); transition: all .15s; }
+.pct-btn:hover { background: var(--pi-purple-dim); color: var(--text-primary); border-color: var(--pi-purple); }
+.pct-btn.active { background: var(--pi-purple-dim); color: var(--pi-purple-light); border-color: var(--pi-purple); }
 
-/* CHART */
-.chart-bars{display:flex;align-items:flex-end;gap:7px;height:110px;padding-top:10px}
-.bar-col{flex:1;display:flex;flex-direction:column;align-items:center;gap:5px}
-.bar{width:100%;background:var(--pi-purple-pale);border-radius:4px 4px 0 0;transition:background 0.15s;cursor:pointer}
-.bar:hover,.bar.current{background:var(--pi-purple)}
-.bar-label{font-size:9px;color:var(--text-muted)}
+/* SEND BUTTON */
+.send-btn { width: 100%; margin-top: 14px; padding: 13px 0; background: linear-gradient(135deg, var(--pi-purple), #5a3f8c); border: none; border-radius: 9px; cursor: pointer; font-size: 15px; font-weight: 700; color: #fff; display: flex; align-items: center; justify-content: center; gap: 8px; transition: opacity .15s, transform .1s; }
+.send-btn:hover { opacity: .9; }
+.send-btn:active { transform: scale(.98); }
+.send-btn:disabled { opacity: .45; cursor: not-allowed; }
 
-/* TX */
-.history-tx{display:flex;align-items:center;gap:12px;padding:11px 0;border-bottom:0.5px solid var(--border)}
-.history-tx:last-child{border-bottom:none}
-.tx-icon{width:34px;height:34px;border-radius:9px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
-.tx-icon.out{background:var(--danger-bg)}
-.tx-icon.in{background:var(--success-bg)}
-.tx-icon.out i{color:var(--danger);font-size:16px}
-.tx-icon.in i{color:var(--success);font-size:16px}
-.tx-info{flex:1;min-width:0}
-.tx-name{font-size:13px;font-weight:500;color:var(--text-primary)}
-.tx-hash{font-size:10px;color:var(--text-muted);font-family:'SF Mono','Fira Code',monospace;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.tx-right{text-align:right;flex-shrink:0}
-.tx-amount{font-size:13px;font-weight:600;font-family:'SF Mono','Fira Code',monospace}
-.tx-amount.out{color:var(--danger)}
-.tx-amount.in{color:var(--success)}
-.tx-date{font-size:10px;color:var(--text-muted);margin-top:2px}
+/* TABLE */
+.table-wrap { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font-size: 13px; }
+th { text-align: left; padding: 9px 14px; font-size: 10px; font-weight: 700; color: var(--text-muted); border-bottom: 1px solid var(--border); text-transform: uppercase; letter-spacing: .06em; white-space: nowrap; }
+td { padding: 11px 14px; border-bottom: 1px solid var(--border); color: var(--text-primary); vertical-align: middle; }
+tr:last-child td { border-bottom: none; }
+tbody tr:hover td { background: var(--bg-card2); }
 
-/* RECURRING */
-.recurring-card{display:flex;align-items:center;justify-content:space-between;padding:13px 16px;background:var(--surface-0);border:0.5px solid var(--border);border-radius:10px;margin-bottom:8px}
-
-/* REPORTS */
-.report-row{display:flex;align-items:center;gap:12px;padding:12px 14px;background:var(--surface-0);border:0.5px solid var(--border);border-radius:10px;margin-bottom:8px}
-.report-icon{width:38px;height:38px;border-radius:9px;background:var(--pi-purple-pale);display:flex;align-items:center;justify-content:center;flex-shrink:0}
-.report-icon i{font-size:19px;color:var(--pi-purple)}
-.report-name{font-size:13px;font-weight:500;color:var(--text-primary)}
-.report-meta{font-size:11px;color:var(--text-secondary);margin-top:2px}
-
-/* TEMPLATE */
-.template-box{background:var(--surface-0);border:0.5px solid var(--border);border-radius:10px;padding:12px 16px;font-size:12px;margin-bottom:14px}
-.template-row{display:flex;align-items:center;justify-content:space-between;padding:5px 0;border-bottom:0.5px solid var(--border)}
-.template-row:last-child{border-bottom:none}
-.template-key{color:var(--text-muted);font-family:'SF Mono','Fira Code',monospace}
-
-/* PROGRESS */
-.progress-bar{width:100%;height:6px;background:var(--pi-purple-pale);border-radius:3px;overflow:hidden;margin-top:10px}
-.progress-fill{height:100%;background:var(--pi-purple);border-radius:3px;transition:width 0.4s ease}
+/* PILLS */
+.pill { display: inline-flex; align-items: center; gap: 4px; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; white-space: nowrap; }
+.pill-success { background: var(--green-dim); color: var(--green); }
+.pill-warning { background: rgba(245,158,11,.15); color: var(--amber); }
+.pill-purple { background: var(--pi-purple-dim); color: var(--pi-purple-light); }
+.pill-danger { background: rgba(248,113,113,.15); color: var(--red); }
+.pill-gray { background: var(--bg-card2); color: var(--text-secondary); }
 
 /* EMPTY STATE */
-.empty-state{text-align:center;padding:40px 24px;color:var(--text-muted)}
-.empty-state i{font-size:36px;display:block;margin-bottom:10px;color:var(--border-strong)}
-.empty-state-title{font-size:14px;font-weight:500;color:var(--text-secondary);margin-bottom:5px}
-.empty-state-sub{font-size:12px}
+.empty-state { text-align: center; padding: 40px 24px; color: var(--text-muted); }
+.empty-state-icon { font-size: 36px; margin-bottom: 10px; }
+.empty-state-title { font-size: 14px; font-weight: 500; color: var(--text-secondary); margin-bottom: 5px; }
+.empty-state-sub { font-size: 12px; }
 
-/* SDK CODE */
-.code-block{background:var(--pi-dark);border-radius:10px;padding:14px 16px;font-family:'SF Mono','Fira Code',monospace;font-size:12px;line-height:1.7;overflow-x:auto;margin-bottom:20px}
+/* HISTORY TX */
+.history-tx { display: flex; align-items: center; gap: 12px; padding: 11px 14px; border-bottom: 1px solid var(--border); border-radius: 8px; }
+.history-tx:hover { background: var(--bg-card2); }
+.history-tx:last-child { border: none; }
+.tx-icon-s { width: 34px; height: 34px; border-radius: 9px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 15px; }
+.tx-icon-out { background: rgba(248,113,113,.15); color: var(--red); }
+.tx-icon-in { background: var(--green-dim); color: var(--green); }
+.tx-info { flex: 1; min-width: 0; }
+.tx-name { font-size: 13px; font-weight: 500; color: var(--text-primary); }
+.tx-hash { font-size: 10px; color: var(--text-muted); font-family: monospace; margin-top: 2px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.tx-right { text-align: right; flex-shrink: 0; }
+.tx-amount { font-size: 13px; font-weight: 600; font-family: monospace; }
+.tx-amount.out { color: var(--red); }
+.tx-amount.in { color: var(--green); }
+.tx-date { font-size: 10px; color: var(--text-muted); margin-top: 2px; }
 
-/* MISC */
-.pi-sym{color:var(--pi-purple);font-family:'Georgia',serif;font-weight:700}
-.pi-amount{font-family:'SF Mono','Fira Code',monospace;font-weight:500}
-.two-col{display:grid;grid-template-columns:1fr 1fr;gap:14px}
-.row-between{display:flex;align-items:center;justify-content:space-between}
-.row-gap{display:flex;align-items:center;gap:10px}
-.mt-14{margin-top:14px}
-.mb-14{margin-bottom:14px}
+/* INVOICE */
+.invoice-card { background: var(--bg-card2); border: 1px solid var(--border); border-radius: 10px; padding: 16px; margin-bottom: 10px; display: flex; align-items: center; justify-content: space-between; }
+.invoice-left { display: flex; align-items: center; gap: 14px; }
+.invoice-icon { width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
+.invoice-icon.pending { background: rgba(245,158,11,.15); color: var(--amber); }
+.invoice-icon.paid { background: var(--green-dim); color: var(--green); }
+.invoice-info { min-width: 0; }
+.invoice-name { font-size: 13px; font-weight: 500; color: var(--text-primary); }
+.invoice-meta { font-size: 11px; color: var(--text-muted); margin-top: 3px; }
+.invoice-right { text-align: right; flex-shrink: 0; }
+.invoice-amount { font-size: 14px; font-weight: 600; color: var(--text-primary); }
 
-/* BANNER */
-.sdk-banner{background:var(--pi-dark);border-radius:12px;padding:20px 24px;display:flex;align-items:center;justify-content:space-between;margin-bottom:20px}
-.sdk-banner-title{font-size:14px;font-weight:600;color:rgba(255,255,255,0.9);margin-bottom:4px}
-.sdk-banner-sub{font-size:12px;color:rgba(255,255,255,0.45)}
+/* LINK CARD */
+.link-card { background: var(--bg-card2); border: 1px solid var(--border); border-radius: 10px; padding: 14px; margin-bottom: 10px; }
+.link-url { font-family: monospace; font-size: 12px; color: var(--pi-purple-light); word-break: break-all; margin-bottom: 8px; }
+.link-row { display: flex; align-items: center; justify-content: space-between; font-size: 12px; color: var(--text-secondary); }
+.link-actions { display: flex; gap: 6px; }
+
+/* BALANCE GRID */
+.balance-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 12px; margin-bottom: 20px; }
+.balance-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 18px; }
+.balance-label { font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: .06em; font-weight: 600; margin-bottom: 8px; }
+.balance-value { font-size: 22px; font-weight: 700; color: var(--text-primary); }
+.balance-sub { font-size: 11px; color: var(--text-muted); margin-top: 4px; }
+
+/* SCHEDULE CARD */
+.schedule-card { background: var(--bg-card2); border: 1px solid var(--border); border-radius: 10px; padding: 14px 16px; margin-bottom: 8px; display: flex; align-items: center; justify-content: space-between; }
+.schedule-left { display: flex; align-items: center; gap: 12px; }
+.schedule-av { width: 34px; height: 34px; border-radius: 50%; background: var(--pi-purple-dim); color: var(--pi-purple-light); display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; flex-shrink: 0; }
+.schedule-name { font-size: 13px; font-weight: 500; color: var(--text-primary); }
+.schedule-info { font-size: 11px; color: var(--text-secondary); margin-top: 2px; }
+.schedule-right { display: flex; align-items: center; gap: 12px; }
+.schedule-amount { font-size: 14px; font-weight: 600; color: var(--pi-gold); }
+
+/* TOGGLE */
+.toggle { width: 38px; height: 22px; border-radius: 11px; background: var(--border-strong); cursor: pointer; position: relative; flex-shrink: 0; border: none; padding: 0; transition: background .2s; }
+.toggle.on { background: var(--pi-purple); }
+.toggle::after { content: ''; position: absolute; width: 16px; height: 16px; background: #fff; border-radius: 50%; top: 3px; left: 3px; transition: transform .2s; }
+.toggle.on::after { transform: translateX(16px); }
+
+/* MODAL */
+.modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,.7); display: flex; align-items: center; justify-content: center; z-index: 100; }
+.modal-card { background: var(--bg-card); border: 1px solid var(--border-strong); border-radius: 14px; padding: 28px; max-width: 440px; width: 90%; text-align: center; }
+.modal-icon { font-size: 48px; margin-bottom: 14px; }
+.modal-title { font-size: 18px; font-weight: 700; margin-bottom: 8px; }
+.modal-body { font-size: 13px; color: var(--text-secondary); margin-bottom: 20px; line-height: 1.6; }
+.modal-tx { background: var(--bg-card2); border: 1px solid var(--border); border-radius: 8px; padding: 10px 14px; margin-bottom: 18px; font-family: monospace; font-size: 11px; color: var(--text-secondary); word-break: break-all; }
+.modal-actions { display: flex; gap: 10px; justify-content: center; }
+.hidden { display: none !important; }
+.spinner { display: inline-block; width: 20px; height: 20px; border: 2px solid rgba(255,255,255,.3); border-top-color: #fff; border-radius: 50%; animation: spin .7s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+@keyframes routeFlow { 0% { background-position: 0% 50%; } 100% { background-position: 200% 50%; } }
+@keyframes pulseDot { 0%,100% { box-shadow: 0 0 0 0 rgba(123,94,167,.6); } 50% { box-shadow: 0 0 0 8px rgba(123,94,167,0); } }
+@keyframes pulseGold { 0%,100% { box-shadow: 0 0 0 0 rgba(240,180,41,.6); } 50% { box-shadow: 0 0 0 8px rgba(240,180,41,0); } }
 
 /* TOAST */
-.toast{position:fixed;bottom:24px;right:24px;background:var(--pi-dark);color:#fff;padding:12px 18px;border-radius:10px;font-size:13px;display:flex;align-items:center;gap:8px;transform:translateY(80px);opacity:0;transition:transform 0.25s,opacity 0.25s;z-index:999;box-shadow:0 8px 24px rgba(0,0,0,0.25)}
-.toast.show{transform:translateY(0);opacity:1}
+.toast { position: fixed; bottom: 24px; right: 24px; background: var(--bg-card2); border: 1px solid var(--border-strong); border-radius: 10px; padding: 14px 18px; font-size: 13px; color: var(--text-primary); box-shadow: 0 8px 32px rgba(0,0,0,.4); transform: translateY(20px); opacity: 0; transition: all .25s; z-index: 200; max-width: 340px; pointer-events: none; }
+.toast.show { transform: translateY(0); opacity: 1; }
+.toast-title { font-weight: 600; margin-bottom: 3px; }
+.toast-body { color: var(--text-secondary); }
+
+/* PAGE PANELS */
+.page-panel { display: none; }
+.page-panel.active { display: block; }
+
+/* 2-COL */
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.row-between { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; }
+.row-gap { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+
+/* SETTINGS */
+.settings-row { display: flex; align-items: center; justify-content: space-between; padding: 14px 0; border-bottom: 1px solid var(--border); }
+.settings-row:last-child { border: none; }
+.settings-label { font-size: 14px; font-weight: 500; color: var(--text-primary); }
+.settings-desc { font-size: 12px; color: var(--text-muted); margin-top: 3px; }
 
 /* RESPONSIVE */
-@media(max-width:900px){
-  .sidebar{width:56px}
-  .logo-text,.logo-sub,.nav-section,.nav-item span,.user-info{display:none}
-  .nav-item{justify-content:center;padding:10px}
-  .nav-item i{font-size:20px}
-  .logo-pi{font-size:22px}
-  .stats-grid{grid-template-columns:1fr 1fr}
-  .two-col{grid-template-columns:1fr}
-  .form-grid{grid-template-columns:1fr}
+@media(max-width:1024px){
+  .sidebar-toggle { display: flex; }
+  .sidebar:not(.collapsed) { width: var(--sidebar-w); }
+  .balance-grid { grid-template-columns: 1fr 1fr; }
+  .two-col { grid-template-columns: 1fr; }
+  .form-grid { grid-template-columns: 1fr; }
+  .page { padding: 16px; }
+  .topbar { padding: 0 14px; gap: 8px; }
+  .topbar-title { font-size: 13px; }
+  .topbar-right { gap: 6px; }
+  .network-pill { font-size: 10px; padding: 4px 8px; }
+  .btn { padding: 6px 12px; font-size: 12px; }
 }
 @media(max-width:600px){
-  .stats-grid{grid-template-columns:1fr}
-  .topbar{padding:0 16px}
-  .content{padding:16px}
+  .sidebar { position: fixed; left: 0; top: 0; height: 100vh; box-shadow: 4px 0 24px rgba(0,0,0,.4); }
+  .sidebar.collapsed { width: 0; overflow: hidden; border: none; box-shadow: none; }
+  .sidebar:not(.collapsed) + .sidebar-backdrop { display: block; }
+  .sidebar-backdrop { display: none; }
+  .sidebar-toggle { display: flex; position: relative; z-index: 51; }
+  .balance-grid { grid-template-columns: 1fr; }
+  .page { padding: 12px; }
+  .topbar { padding: 0 10px; height: 48px; gap: 6px; }
+  .page-header { margin-bottom: 12px; }
+  .page-title { font-size: 16px; }
+  .page-sub { font-size: 11px; }
+  .amount-input { font-size: 20px; }
+  .card { padding: 14px; margin-bottom: 10px; }
+  .btn-group { gap: 4px; }
+  .form-grid { gap: 10px; }
+  .send-btn { padding: 11px 0; font-size: 14px; }
+  table { font-size: 11px; }
+  th, td { padding: 6px 8px; }
+  .history-tx { flex-wrap: wrap; gap: 8px; padding: 10px; }
+  .invoice-card { flex-direction: column; align-items: flex-start; gap: 10px; }
+  .invoice-right { text-align: left; }
+  .schedule-card { flex-direction: column; align-items: flex-start; gap: 10px; }
+  .schedule-right { width: 100%; justify-content: space-between; }
+  .row-between { gap: 6px; }
+  .modal-card { padding: 20px; margin: 12px; max-width: 95vw; }
+  .amount-input-row { padding: 8px 12px; }
+  .pct-row { gap: 4px; }
+  .pct-btn { font-size: 11px; padding: 6px 0; }
 }
 
-::-webkit-scrollbar{width:6px;height:6px}
-::-webkit-scrollbar-track{background:transparent}
-::-webkit-scrollbar-thumb{background:var(--border-strong);border-radius:3px}
-@keyframes spin{to{transform:rotate(360deg)}}
-
-/* PI WALLET */
-.pi-connect-btn{display:inline-flex;align-items:center;gap:7px;padding:6px 14px;border-radius:20px;font-size:12px;font-weight:600;cursor:pointer;border:1px solid var(--pi-purple);background:var(--pi-purple);color:#fff;transition:all 0.12s;font-family:inherit;white-space:nowrap}
-.pi-connect-btn:hover{background:var(--pi-purple-mid);border-color:var(--pi-purple-mid)}
-.pi-connect-btn.connected{background:transparent;border:1px solid var(--success);color:var(--success);cursor:default}
-.pi-connect-btn.loading{opacity:.6;pointer-events:none}
-.status-dot{width:8px;height:8px;border-radius:50%;display:inline-block;flex-shrink:0}
-.status-dot.green{background:var(--success);animation:pulse 2s infinite}
-.status-dot.red{background:var(--danger)}
-.status-dot.yellow{background:var(--pi-amber)}
-.pi-user-chip{display:flex;align-items:center;gap:6px;color:var(--text-primary);font-size:12px;font-weight:500}
-.pi-user-chip .pi-at{color:var(--pi-purple)}
-.pi-browser-warning{display:none;background:var(--warning-bg);border:1px solid #FCD34D;border-radius:10px;padding:16px 20px;margin-bottom:16px;text-align:center}
-.pi-browser-warning.show{display:block}
-.pi-browser-warning i{font-size:28px;color:var(--pi-amber);display:block;margin-bottom:8px}
-.pi-browser-warning .warn-title{font-size:14px;font-weight:600;color:var(--warning-text);margin-bottom:4px}
-.pi-browser-warning .warn-sub{font-size:12px;color:var(--warning-text);opacity:.8;line-height:1.5}
-
-/* WALLET CARDS */
-.wallet-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:20px}
-.wallet-card{background:var(--surface-2);border:0.5px solid var(--border);border-radius:12px;padding:18px 20px}
-.wallet-card-header{font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.06em;font-weight:600;margin-bottom:10px}
-.wallet-card-value{font-size:22px;font-weight:600;color:var(--text-primary)}
-.wallet-card-sub{font-size:11px;color:var(--text-muted);margin-top:4px}
-.wallet-username{color:var(--pi-purple);font-family:'SF Mono','Fira Code',monospace;font-size:14px}
-.wallet-uid{font-family:'SF Mono','Fira Code',monospace;font-size:13px;color:var(--text-secondary);word-break:break-all}
-
-/* INCOMPLETE PAYMENT BANNER */
-.incomplete-banner{display:none;background:var(--danger-bg);border:1px solid #FCA5A5;border-radius:10px;padding:12px 18px;margin-bottom:16px;align-items:center;justify-content:space-between;gap:12px}
-.incomplete-banner.show{display:flex}
-.incomplete-banner .inc-text{font-size:13px;color:var(--danger);font-weight:500}
-.incomplete-banner .inc-detail{font-size:11px;color:var(--danger);opacity:.7}
-
-/* APPROVAL MODAL */
-.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:1000;align-items:center;justify-content:center}
-.modal-overlay.show{display:flex}
-.modal-box{background:var(--surface-2);border-radius:14px;padding:28px 32px;max-width:520px;width:90%;box-shadow:0 20px 60px rgba(0,0,0,0.3);border:0.5px solid var(--border)}
-.modal-box .modal-title{font-size:16px;font-weight:600;color:var(--text-primary);margin-bottom:20px;display:flex;align-items:center;gap:10px}
-.modal-box .modal-summary-row{display:flex;justify-content:space-between;padding:10px 0;border-bottom:0.5px solid var(--border);font-size:13px}
-.modal-box .modal-summary-row:last-child{border-bottom:none}
-.modal-box .modal-summary-label{color:var(--text-secondary)}
-.modal-box .modal-summary-val{font-weight:600;color:var(--text-primary)}
-.modal-box .modal-actions{display:flex;gap:10px;margin-top:20px;justify-content:flex-end}
-.modal-box .modal-category-list{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
-
-@media(max-width:600px){
-  .wallet-grid{grid-template-columns:1fr}
-}
+::-webkit-scrollbar{width:6px;height:6px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:var(--border-strong);border-radius:3px}
 </style>
 </head>
 <body>
 
-<div class="app">
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-icon">π</div>
+    <span class="logo-text">PioneerPIX</span>
+  </div>
+  <div class="sidebar-section">
+    <div class="sidebar-label">Payments</div>
+    <button class="nav-item active" onclick="navTo('send',this)"><span class="nav-icon">📤</span> Send Pi</button>
+    <button class="nav-item" onclick="navTo('batch',this)"><span class="nav-icon">📋</span> Batch Payments<span class="nav-badge badge-pay">Pay</span></button>
+    <button class="nav-item" onclick="navTo('queue',this)"><span class="nav-icon">⏱</span> Payment Queue</button>
+    <button class="nav-item" onclick="navTo('links',this)"><span class="nav-icon">🔗</span> Payment Links</button>
+    <button class="nav-item" onclick="navTo('invoices',this)"><span class="nav-icon">🧾</span> Invoices</button>
+    <button class="nav-item" onclick="navTo('balance',this)"><span class="nav-icon">💰</span> Balance<span class="nav-badge badge-kit">Unified</span></button>
+  </div>
+  <div class="sidebar-section" style="margin-top:8px">
+    <div class="sidebar-label">App Kit</div>
+    <button class="nav-item" onclick="navTo('schedule',this)"><span class="nav-icon">🗓</span> Schedule<span class="nav-badge badge-new">New</span></button>
+    <button class="nav-item" onclick="navTo('history',this)"><span class="nav-icon">📊</span> History</button>
+    <button class="nav-item" onclick="navTo('settings',this)"><span class="nav-icon">⚙️</span> Settings</button>
+  </div>
+  <div class="sidebar-wallet" id="sidebarWallet">
+    <div class="wallet-label">Wallet</div>
+    <div class="wallet-balance" id="walletBal">—</div>
+    <div class="wallet-unit">π Pi</div>
+    <div class="wallet-addr" id="walletAddr">Not connected</div>
+    <div class="wallet-tags">
+      <span class="wallet-tag">Pi Mainnet</span>
+      <span class="wallet-tag" id="netTag">Pi Browser</span>
+    </div>
+  </div>
+</aside>
+<div class="sidebar-backdrop" id="sidebarBackdrop" onclick="closeSidebar()"></div>
 
-  <!-- SIDEBAR -->
-  <aside class="sidebar">
-    <div class="sidebar-logo">
-      <div class="logo-row">
-        <span class="logo-pi">π</span>
-        <div>
-          <div class="logo-text">Pi Payroll</div>
-          <div class="logo-sub">Payroll on Pi Network</div>
-        </div>
+<div class="main">
+  <div class="topbar">
+    <span class="topbar-title" id="pageTitle">Send Pi</span>
+    <button class="sidebar-toggle" id="sidebarToggle" onclick="toggleSidebar()" title="Toggle menu">☰</button>
+    <div class="topbar-right">
+      <div class="network-pill" id="networkPill" onclick="toggleSandbox()">
+        <div class="dot dot-purple" id="netDot"></div>
+        <span id="netName">Sandbox (Testnet)</span>
+      </div>
+      <div class="network-pill" id="userPill" style="cursor:pointer" onclick="connectPi()">
+        <div class="dot" id="connDot" style="background:#5e5478"></div>
+        <span id="userLabel">Connect Wallet</span>
       </div>
     </div>
-    <nav class="nav">
-      <div class="nav-section">Main</div>
-      <button class="nav-item active" onclick="show('dashboard',this)">
-        <i class="ti ti-layout-dashboard"></i><span>Dashboard</span>
-      </button>
-      <button class="nav-item" onclick="show('payments',this)">
-        <i class="ti ti-send"></i><span>Payments</span>
-      </button>
-      <button class="nav-item" onclick="show('csv',this)">
-        <i class="ti ti-file-spreadsheet"></i><span>CSV Upload</span>
-      </button>
-      <div class="nav-section">Automation</div>
-      <button class="nav-item" onclick="show('recurring',this)">
-        <i class="ti ti-repeat"></i><span>Recurring</span>
-      </button>
-      <div class="nav-section">Data</div>
-      <button class="nav-item" onclick="show('history',this)">
-        <i class="ti ti-history"></i><span>History</span>
-      </button>
-      <button class="nav-item" onclick="show('reports',this)">
-        <i class="ti ti-chart-bar"></i><span>Reports</span>
-      </button>
-      <button class="nav-item" onclick="show('sdk',this)">
-        <i class="ti ti-code"></i><span>SDK Integration</span>
-      </button>
-      <button class="nav-item" onclick="show('wallet',this)">
-        <i class="ti ti-wallet"></i><span>Wallet</span>
-      </button>
-    </nav>
-    <div class="sidebar-footer">
-      <div class="user-row">
-        <div class="user-av" id="org-av">OR</div>
-        <div class="user-info">
-          <div class="user-name" id="org-name">My Organization</div>
-          <div class="user-role">Admin · Pi Network</div>
-        </div>
-      </div>
-    </div>
-  </aside>
+  </div>
 
-  <!-- MAIN -->
-  <div class="main">
-    <div class="topbar">
-      <span class="page-title" id="page-title">Dashboard</span>
-      <div class="topbar-right">
-        <button class="pi-connect-btn" id="pi-connect-btn" onclick="PiWalletManager.connect()">
-          <i class="ti ti-plug"></i><span id="pi-connect-label">Connect Pi Wallet</span>
-        </button>
-        <div class="badge-network" id="badge-network">
-          <span class="net-dot"></span>Pi Mainnet
-        </div>
-        <button class="btn btn-primary btn-sm" onclick="show('payments',null);toast('New payment opened')">
-          <i class="ti ti-plus"></i>New Payment
-        </button>
-      </div>
-    </div>
-
-    <div class="content">
-      <div id="pi-browser-warn" class="pi-browser-warning">
-        <i class="ti ti-alert-triangle"></i>
-        <div class="warn-title">Pi Browser Required</div>
-        <div class="warn-sub">Pi Payroll currently works only inside the official Pi Browser.<br>Please open this application using the Pi Browser.</div>
-      </div>
-      <div id="incomplete-banner" class="incomplete-banner">
-        <div>
-          <div class="inc-text" id="inc-text"></div>
-          <div class="inc-detail" id="inc-detail"></div>
-        </div>
-        <button class="btn btn-sm btn-primary" id="inc-complete-btn" onclick="PiWalletManager.completeIncompletePayment()" style="display:none">Complete</button>
-      </div>
-
-      <!-- DASHBOARD -->
-      <div class="panel active" id="panel-dashboard">
-        <div class="sdk-banner">
-          <div>
-            <div class="sdk-banner-title">π Pi Payroll — Decentralized Payroll System</div>
-            <div class="sdk-banner-sub">Built on Pi Network · On-chain payments · Zero traditional banking fees</div>
-          </div>
-          <button class="btn btn-amber btn-sm" onclick="show('sdk',null)">
-            <i class="ti ti-plug"></i>Connect Pi SDK
-          </button>
-        </div>
-
-        <div class="stats-grid">
-          <div class="stat-card">
-            <div class="stat-label">Sent this cycle</div>
-            <div class="stat-value" id="dash-sent"><span class="pi-sym">π</span> 0</div>
-            <div class="stat-sub" id="dash-sent-sub" style="color:var(--text-muted)">No payments yet</div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-label">Active recipients</div>
-            <div class="stat-value" id="dash-recipients">0</div>
-            <div class="stat-sub" style="color:var(--text-muted)" id="dash-rec-sub">No recipients yet</div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-label">Total transactions</div>
-            <div class="stat-value" id="dash-txcount">0</div>
-            <div class="stat-sub" style="color:var(--text-muted)">All time</div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-label">Scheduled payments</div>
-            <div class="stat-value" id="dash-scheduled">0</div>
-            <div class="stat-sub" style="color:var(--text-muted)" id="dash-sched-sub">No schedules set</div>
-          </div>
-        </div>
-
-        <div class="two-col">
-          <div class="card">
-            <div class="section-title">Recent transactions</div>
-            <div id="dash-recent">
-              <div class="empty-state">
-                <i class="ti ti-clock"></i>
-                <div class="empty-state-title">No transactions yet</div>
-                <div class="empty-state-sub">Payments you send will appear here</div>
-              </div>
+  <div class="page">
+    <!-- SEND PI -->
+    <div class="page-panel active" id="panel-send">
+      <div class="page-header"><div><div class="page-title">📤 Send Pi</div><div class="page-sub">Send Pi to any Pioneer or app account · U2A flow via Pi SDK</div></div></div>
+      <div class="two-col">
+        <div class="card">
+          <div class="card-title">Payment Route</div>
+          <div style="display:flex;align-items:center;gap:0;background:var(--bg-card2);border-radius:8px;padding:12px 16px;margin-bottom:14px;position:relative;overflow:hidden">
+            <div style="display:flex;align-items:center;gap:8px;font-size:13px;font-weight:500;z-index:1">
+              <div class="route-dot-live" style="background:var(--pi-purple-light);animation:pulseDot 2s infinite"></div> Your Wallet
             </div>
-          </div>
-          <div class="card">
-            <div class="section-title">
-              Breakdown by category
+            <div style="flex:1;height:3px;margin:0 12px;background:linear-gradient(90deg,var(--pi-purple-light),var(--pi-gold),var(--pi-purple-light),var(--pi-gold));background-size:200% 100%;border-radius:2px;animation:routeFlow 2s linear infinite;position:relative">
+              <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:14px;height:14px;border-radius:50%;background:var(--pi-gold);border:2px solid var(--bg-card2);animation:pulseGold 2s infinite"></div>
             </div>
-            <div id="dash-categories">
-              <div class="empty-state">
-                <i class="ti ti-chart-pie"></i>
-                <div class="empty-state-title">No data yet</div>
-                <div class="empty-state-sub">Categories will appear after your first payment</div>
+            <div style="display:flex;align-items:center;gap:8px;font-size:13px;font-weight:500;z-index:1">
+              <div class="route-dot-live" style="background:var(--pi-gold);animation:pulseGold 2s infinite"></div> Recipient
+            </div>
+            <span style="font-size:11px;color:var(--pi-gold);margin-left:auto;z-index:1;font-weight:600">⚡ Instant (SDK)</span>
+          </div>
+          <div style="margin-bottom:12px">
+            <div style="font-size:11px;color:var(--text-muted);margin-bottom:6px;display:flex;justify-content:space-between"><span>Origin</span><span class="pill pill-purple">Pi Browser Required</span></div>
+            <div style="background:var(--bg-card2);border:1px solid var(--border);border-radius:8px;padding:13px 14px">
+              <div style="font-size:14px;font-weight:600;display:flex;align-items:center;gap:7px"><div class="dot dot-purple"></div> Pi Mainnet</div>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px 16px;margin-top:10px;font-size:12px;color:var(--text-secondary)">
+                <div>Balance <span style="color:var(--text-primary);font-weight:500" id="s-balance">—</span></div>
+                <div>Status <span class="pill pill-warning" id="s-status" style="font-size:10px">Not connected</span></div>
+                <div>User <span style="color:var(--text-primary);font-weight:500" id="s-user">—</span></div>
+                <div>Network <span style="color:var(--text-primary);font-weight:500">Pi SDK</span></div>
               </div>
             </div>
           </div>
         </div>
-      </div>
-
-      <!-- PAYMENTS -->
-      <div class="panel" id="panel-payments">
-        <div class="card mb-14">
-          <div class="section-title" style="margin-bottom:16px">New payment</div>
-          <div class="form-grid">
-            <div class="form-group">
-              <label>Recipient (Pi username or address)</label>
-              <input class="input" type="text" id="pay-recipient" placeholder="@username or GXXXXX…" />
-            </div>
-            <div class="form-group">
-              <label>Amount (π)</label>
-              <input class="input" type="number" id="pay-amount" placeholder="0.00" min="0" step="0.01" />
-            </div>
-            <div class="form-group">
-              <label>Memo</label>
-              <input class="input" type="text" id="pay-memo" placeholder="July salary, freelance invoice…" />
-            </div>
-            <div class="form-group">
-              <label>Category</label>
-              <select class="input" id="pay-category">
-                <option>Salary</option>
-                <option>Freelance</option>
-                <option>Reimbursement</option>
-                <option>Bonus</option>
-                <option>Contract</option>
-                <option>Other</option>
-              </select>
-            </div>
+        <div class="card">
+          <div style="font-size:13px;font-weight:600;color:var(--pi-gold);margin-bottom:4px">⚡ Payment Details</div>
+          <div style="font-size:11px;color:var(--text-muted);margin-bottom:14px">SDK-powered · User-to-App (U2A) flow</div>
+          <div class="form-group"><label>Recipient</label><input class="input" id="s-recipient" placeholder="@pioneer_username or wallet address" /></div>
+          <div class="form-group"><label>Memo</label><input class="input" id="s-memo" placeholder="Payment description (optional)" /></div>
+          <div class="warn-box" style="background:rgba(240,180,41,.07);border:1px solid rgba(240,180,41,.18);border-radius:7px;padding:9px 12px;margin-bottom:14px;font-size:12px;color:#c9983a">⚠️ This app requires the <strong>Pi Browser</strong> for real wallet authentication and payments.</div>
+          <label style="font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;display:block">Amount</label>
+          <div class="amount-input-row"><span class="amount-sym">π</span><input class="amount-input" id="s-amount" type="number" value="1.00" min="0.01" step="0.01" oninput="updateSendSummary()" /></div>
+          <div class="usd-approx" id="s-usd">≈ $0.00 USD · price N/A in sandbox</div>
+          <div class="pct-row">
+            <div class="pct-btn" onclick="setSendPct(25,this)">25%</div>
+            <div class="pct-btn" onclick="setSendPct(50,this)">50%</div>
+            <div class="pct-btn" onclick="setSendPct(75,this)">75%</div>
+            <div class="pct-btn active" onclick="setSendPct(100,this)">MAX</div>
           </div>
+          <div style="background:var(--bg-card2);border:1px solid var(--border);border-radius:9px;padding:14px;margin-bottom:14px">
+            <div style="font-size:12px;font-weight:600;color:var(--text-secondary);margin-bottom:10px">📦 Summary</div>
+            <div style="display:flex;justify-content:space-between;margin-bottom:6px;font-size:13px"><span style="color:var(--text-secondary)">You Send</span><span style="color:var(--text-primary);font-weight:500" id="s-sum-send">1.00 π</span></div>
+            <div style="display:flex;justify-content:space-between;margin-bottom:6px;font-size:13px"><span style="color:var(--text-secondary)">SDK Fee</span><span style="color:var(--pi-gold)" id="s-sum-fee">~0 π (network)</span></div>
+            <hr style="border:none;border-top:1px solid var(--border);margin:8px 0">
+            <div style="display:flex;justify-content:space-between;font-size:13px"><span style="font-weight:600;color:var(--text-primary)">Recipient Gets</span><span style="font-size:15px;font-weight:700;color:var(--green)" id="s-sum-rec">≈ 1.00 π</span></div>
+          </div>
+          <button class="send-btn" id="sendBtn" onclick="sendPayment()"><span id="sendBtnText">Connect Wallet to Pay</span></button>
+        </div>
+      </div>
+    </div>
+
+    <!-- BATCH PAYMENTS -->
+    <div class="page-panel" id="panel-batch">
+      <div class="page-header"><div><div class="page-title">📋 Batch Payments</div><div class="page-sub">Send Pi to multiple recipients at once · CSV upload or manual entry</div></div></div>
+      <div class="card">
+        <div class="card-title">Add Recipients</div>
+        <div class="form-grid">
+          <div class="form-group"><label>Recipient</label><input class="input" id="b-recipient" placeholder="@username or GXXXXX…" /></div>
+          <div class="form-group"><label>Amount (π)</label><input class="input" id="b-amount" type="number" placeholder="0.00" min="0.01" step="0.01" /></div>
+          <div class="form-group"><label>Memo</label><input class="input" id="b-memo" placeholder="Payment description" /></div>
+          <div class="form-group"><label>Category</label><select class="input" id="b-category"><option>Salary</option><option>Freelance</option><option>Bonus</option><option>Reimbursement</option><option>Other</option></select></div>
+        </div>
+        <div class="btn-group">
+          <button class="btn btn-primary" onclick="addToBatch()">+ Add to Batch</button>
+          <button class="btn" onclick="document.getElementById('csvInput').click()">📄 Import CSV</button>
+          <button class="btn btn-sm" onclick="downloadCSVTemplate()">⬇ Download Template</button>
+        </div>
+        <input type="file" id="csvInput" accept=".csv" style="display:none" onchange="handleCSV(this)" />
+      </div>
+      <div class="card" id="batchPreview" style="display:none">
+        <div class="row-between" style="margin-bottom:14px">
+          <div class="card-title" style="margin:0" id="batchTitle">Batch (0 recipients)</div>
           <div class="btn-group">
-            <button class="btn btn-primary" onclick="addToQueue()">
-              <i class="ti ti-plus"></i>Add to queue
-            </button>
-            <button class="btn" onclick="processQueue()">
-              <i class="ti ti-send"></i>Send entire queue
-            </button>
-            <button class="btn" onclick="show('csv',null)">
-              <i class="ti ti-file-spreadsheet"></i>Import CSV
-            </button>
+            <button class="btn btn-primary" onclick="sendBatch()">🚀 Send All</button>
+            <button class="btn btn-sm btn-danger" onclick="clearBatch()">Clear</button>
           </div>
         </div>
-
-        <div class="card">
-          <div class="section-title">
-            Payment queue
-            <div class="row-gap">
-              <span id="queue-count" style="font-size:12px;color:var(--text-muted)">0 in queue</span>
-              <button class="btn btn-sm" onclick="clearQueue()">
-                <i class="ti ti-trash" style="font-size:12px"></i>Clear
-              </button>
-            </div>
-          </div>
-          <div class="table-wrap">
-            <table>
-              <thead>
-                <tr>
-                  <th>Recipient</th><th>Username</th><th>Amount</th><th>Memo</th><th>Category</th><th>Status</th><th></th>
-                </tr>
-              </thead>
-              <tbody id="payment-queue"></tbody>
-            </table>
-          </div>
-        </div>
+        <div class="table-wrap"><table><thead><tr><th>#</th><th>Recipient</th><th>Amount</th><th>Memo</th><th>Category</th><th></th></tr></thead><tbody id="batchBody"></tbody></table></div>
       </div>
+    </div>
 
-      <!-- CSV -->
-      <div class="panel" id="panel-csv">
-        <div class="card mb-14">
-          <div class="upload-zone" id="upload-zone" onclick="handleUploadClick()">
-            <i class="ti ti-cloud-upload"></i>
-            <div class="upload-title">Drag a CSV here or click to select</div>
-            <div class="upload-sub">Expected columns: name, pi_username, amount, memo, category</div>
-          </div>
-          <input type="file" id="csv-file-input" accept=".csv" style="display:none" onchange="handleFileSelect(this)" />
-
-          <div style="margin-bottom:14px">
-            <div class="section-title" style="margin-bottom:10px">Expected format</div>
-            <div class="template-box">
-              <div class="template-row"><span class="template-key">name</span><span>John Smith</span></div>
-              <div class="template-row"><span class="template-key">pi_username</span><span>@john_smith</span></div>
-              <div class="template-row"><span class="template-key">amount</span><span>350.00</span></div>
-              <div class="template-row"><span class="template-key">memo</span><span>July 2025 salary</span></div>
-              <div class="template-row"><span class="template-key">category</span><span>Salary</span></div>
-            </div>
-          </div>
-          <button class="btn btn-sm" onclick="downloadTemplate()">
-            <i class="ti ti-download"></i>Download CSV template
-          </button>
-        </div>
-
-        <div class="card" id="csv-preview" style="display:none">
-          <div class="section-title">
-            <span id="csv-title">Preview</span>
-            <button class="btn btn-primary btn-sm" onclick="sendCsvBatch()">
-              <i class="ti ti-send"></i>Send all
-            </button>
-          </div>
-          <div class="table-wrap">
-            <table>
-              <thead>
-                <tr><th>#</th><th>Name</th><th>Pi Username</th><th>Amount</th><th>Memo</th><th>Category</th><th>Validation</th></tr>
-              </thead>
-              <tbody id="csv-body"></tbody>
-            </table>
-          </div>
-          <div style="margin-top:14px">
-            <div class="row-between" style="margin-bottom:5px">
-              <span style="font-size:12px;color:var(--text-secondary)" id="csv-prog-label">Ready to send</span>
-              <span style="font-size:12px;font-weight:600;color:var(--pi-purple)" id="csv-prog-pct">0%</span>
-            </div>
-            <div class="progress-bar"><div class="progress-fill" id="prog-fill" style="width:0%"></div></div>
-          </div>
-        </div>
-      </div>
-
-      <!-- RECURRING -->
-      <div class="panel" id="panel-recurring">
-        <div class="card mb-14">
-          <div class="section-title" style="margin-bottom:16px">New recurring payment</div>
-          <div class="form-grid">
-            <div class="form-group">
-              <label>Recipient (Pi username)</label>
-              <input class="input" type="text" id="rec-recipient" placeholder="@username" />
-            </div>
-            <div class="form-group">
-              <label>Amount (π)</label>
-              <input class="input" type="number" id="rec-amount" placeholder="0.00" min="0" step="0.01" />
-            </div>
-            <div class="form-group">
-              <label>Frequency</label>
-              <select class="input" id="rec-freq">
-                <option>Weekly</option>
-                <option>Bi-weekly</option>
-                <option selected>Monthly</option>
-                <option>Quarterly</option>
-                <option>Yearly</option>
-              </select>
-            </div>
-            <div class="form-group">
-              <label>First payment date</label>
-              <input class="input" type="date" id="rec-date" />
-            </div>
-            <div class="form-group">
-              <label>Memo</label>
-              <input class="input" type="text" id="rec-memo" placeholder="Monthly salary, grant…" />
-            </div>
-            <div class="form-group">
-              <label>Category</label>
-              <select class="input" id="rec-category">
-                <option>Salary</option>
-                <option>Freelance</option>
-                <option>Grant</option>
-                <option>Contract</option>
-                <option>Other</option>
-              </select>
-            </div>
-          </div>
-          <button class="btn btn-primary" onclick="addRecurring()">
-            <i class="ti ti-repeat"></i>Create schedule
-          </button>
-        </div>
-        <div class="card">
-          <div class="section-title">Active schedules</div>
-          <div id="recurring-list">
-            <div class="empty-state">
-              <i class="ti ti-repeat"></i>
-              <div class="empty-state-title">No recurring payments</div>
-              <div class="empty-state-sub">Create a schedule above to automate payroll</div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- HISTORY -->
-      <div class="panel" id="panel-history">
-        <div class="card">
-          <div class="row-between mb-14">
-            <div class="row-gap" style="flex-wrap:wrap">
-              <input class="input" type="text" placeholder="Search by username, hash, amount…"
-                style="width:230px" oninput="renderHistory(this.value, document.getElementById('status-filter').value)" />
-              <select class="input" id="status-filter" style="width:140px"
-                onchange="renderHistory(document.querySelector('input[placeholder*=Search]').value, this.value)">
-                <option value="">All statuses</option>
-                <option value="completed">Completed</option>
-                <option value="pending">Pending</option>
-                <option value="approved">Approved</option>
-                <option value="confirmed">Confirmed</option>
-                <option value="cancelled">Cancelled</option>
-                <option value="failed">Failed</option>
-              </select>
-            </div>
-            <button class="btn btn-sm" onclick="exportHistory()">
-              <i class="ti ti-download"></i>Export CSV
-            </button>
-          </div>
-          <div id="history-list">
-            <div class="empty-state">
-              <i class="ti ti-history"></i>
-              <div class="empty-state-title">No transactions yet</div>
-              <div class="empty-state-sub">Sent payments will appear here with their on-chain hashes</div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- REPORTS -->
-      <div class="panel" id="panel-reports">
-        <div class="stats-grid" style="margin-bottom:16px">
-          <div class="stat-card">
-            <div class="stat-label">Total sent (all time)</div>
-            <div class="stat-value" id="rep-total"><span class="pi-sym">π</span> 0</div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-label">Top recipient</div>
-            <div class="stat-value" id="rep-top" style="font-size:16px">—</div>
-            <div class="stat-sub" id="rep-top-sub" style="color:var(--text-muted)">No data yet</div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-label">Success rate</div>
-            <div class="stat-value stat-up" id="rep-rate">—</div>
-            <div class="stat-sub" style="color:var(--text-muted)" id="rep-rate-sub">No transactions yet</div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-label">Unique recipients</div>
-            <div class="stat-value" id="rep-uniq">0</div>
-            <div class="stat-sub" style="color:var(--text-muted)">Across all payments</div>
-          </div>
-        </div>
-        <div class="card">
-          <div class="section-title">Generated reports</div>
-          <div id="report-list">
-            <div class="empty-state">
-              <i class="ti ti-file-description"></i>
-              <div class="empty-state-title">No reports yet</div>
-              <div class="empty-state-sub">Reports are generated automatically after each payment cycle</div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- SDK -->
-      <div class="panel" id="panel-sdk">
-        <div class="card mb-14">
-          <div class="section-title" style="margin-bottom:18px">Pi Network SDK Integration</div>
-
-          <div style="margin-bottom:20px">
-            <div style="font-size:13px;font-weight:600;color:var(--text-primary);margin-bottom:8px">1. Add the SDK to your HTML</div>
-            <div class="code-block">
-<span style="color:#A9F0D1">&lt;<span style="color:#FCD34D">script</span> <span style="color:#93C5FD">src</span>=<span style="color:#86EFAC">"https://sdk.minepi.com/pi-sdk.js"</span>&gt;&lt;/<span style="color:#FCD34D">script</span>&gt;</span>
-            </div>
-          </div>
-
-          <div style="margin-bottom:20px">
-            <div style="font-size:13px;font-weight:600;color:var(--text-primary);margin-bottom:8px">2. Initialize and authenticate</div>
-            <div class="code-block">
-<span style="color:#C4B5FD">Pi</span>.<span style="color:#93C5FD">init</span>({ <span style="color:#FCD34D">version</span>: <span style="color:#86EFAC">"2.0"</span>, <span style="color:#FCD34D">sandbox</span>: <span style="color:#F87171">false</span> });<br><br>
-<span style="color:#C4B5FD">const</span> auth = <span style="color:#C4B5FD">await</span> Pi.<span style="color:#93C5FD">authenticate</span>(<br>
-&nbsp;&nbsp;[<span style="color:#86EFAC">'payments'</span>, <span style="color:#86EFAC">'username'</span>],<br>
-&nbsp;&nbsp;onIncompletePaymentFound<br>
-);<br>
-<span style="color:#6B7280">// auth.user.username, auth.accessToken</span>
-            </div>
-          </div>
-
-          <div style="margin-bottom:20px">
-            <div style="font-size:13px;font-weight:600;color:var(--text-primary);margin-bottom:8px">3. Create a payment</div>
-            <div class="code-block">
-<span style="color:#C4B5FD">const</span> payment = <span style="color:#C4B5FD">await</span> Pi.<span style="color:#93C5FD">createPayment</span>({<br>
-&nbsp;&nbsp;<span style="color:#FCD34D">amount</span>: <span style="color:#F87171">350</span>,<br>
-&nbsp;&nbsp;<span style="color:#FCD34D">memo</span>: <span style="color:#86EFAC">"July 2025 salary"</span>,<br>
-&nbsp;&nbsp;<span style="color:#FCD34D">metadata</span>: { <span style="color:#FCD34D">recipient</span>: <span style="color:#86EFAC">"@john_smith"</span> }<br>
-}, {<br>
-&nbsp;&nbsp;<span style="color:#FCD34D">onReadyForServerApproval</span>: <span style="color:#C4B5FD">async</span> (paymentId) =&gt; {<br>
-&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:#6B7280">// approve on your backend</span><br>
-&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:#C4B5FD">await</span> <span style="color:#93C5FD">fetch</span>(<span style="color:#86EFAC">'/api/approve'</span>, { ... });<br>
-&nbsp;&nbsp;},<br>
-&nbsp;&nbsp;<span style="color:#FCD34D">onReadyForServerCompletion</span>: <span style="color:#C4B5FD">async</span> (paymentId, txid) =&gt; {<br>
-&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:#6B7280">// complete and store txid on-chain</span><br>
-&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:#C4B5FD">await</span> <span style="color:#93C5FD">fetch</span>(<span style="color:#86EFAC">'/api/complete'</span>, { ... });<br>
-&nbsp;&nbsp;},<br>
-&nbsp;&nbsp;<span style="color:#FCD34D">onCancel</span>: (paymentId) =&gt; <span style="color:#93C5FD">console</span>.<span style="color:#93C5FD">log</span>(<span style="color:#86EFAC">'cancelled'</span>),<br>
-&nbsp;&nbsp;<span style="color:#FCD34D">onError</span>: (err) =&gt; <span style="color:#93C5FD">console</span>.<span style="color:#93C5FD">error</span>(err)<br>
-});
-            </div>
-          </div>
-
-          <div style="margin-bottom:20px">
-            <div style="font-size:13px;font-weight:600;color:var(--text-primary);margin-bottom:8px">4. Handle incomplete payments on load</div>
-            <div class="code-block">
-<span style="color:#C4B5FD">function</span> <span style="color:#93C5FD">onIncompletePaymentFound</span>(payment) {<br>
-&nbsp;&nbsp;<span style="color:#6B7280">// called if a previous payment was not completed</span><br>
-&nbsp;&nbsp;<span style="color:#93C5FD">console</span>.<span style="color:#93C5FD">log</span>(<span style="color:#86EFAC">'Incomplete payment:'</span>, payment.identifier);<br>
-&nbsp;&nbsp;<span style="color:#6B7280">// complete or cancel it via your backend</span><br>
-}
-            </div>
-          </div>
-
+    <!-- PAYMENT QUEUE -->
+    <div class="page-panel" id="panel-queue">
+      <div class="page-header"><div><div class="page-title">⏱ Payment Queue</div><div class="page-sub">Pending payments waiting to be processed</div></div></div>
+      <div class="card">
+        <div class="row-between" style="margin-bottom:14px">
+          <div class="card-title" style="margin:0" id="queueHeader">Queue (0 items)</div>
           <div class="btn-group">
-            <a class="btn btn-primary" href="https://pi-apps.github.io/community-developer-guide/" target="_blank">
-              <i class="ti ti-external-link"></i>Developer Guide
-            </a>
-            <a class="btn" href="https://github.com/pi-apps/pi-platform-docs" target="_blank">
-              <i class="ti ti-brand-github"></i>Pi Platform Docs
-            </a>
-            <a class="btn" href="https://github.com/pi-apps/demo" target="_blank">
-              <i class="ti ti-code"></i>Demo App
-            </a>
-            <a class="btn" href="https://github.com/pi-apps/pi-nodejs" target="_blank">
-              <i class="ti ti-brand-nodejs"></i>Node.js SDK
-            </a>
+            <button class="btn btn-primary" onclick="processQueue()">🚀 Process All</button>
+            <button class="btn btn-sm btn-danger" onclick="clearQueue()">Clear All</button>
           </div>
+        </div>
+        <div id="queueContent"></div>
+      </div>
+    </div>
+
+    <!-- PAYMENT LINKS -->
+    <div class="page-panel" id="panel-links">
+      <div class="page-header"><div><div class="page-title">🔗 Payment Links</div><div class="page-sub">Create shareable Pi payment links for quick transfers</div></div></div>
+      <div class="card">
+        <div class="card-title">Create Payment Link</div>
+        <div class="form-grid">
+          <div class="form-group"><label>Amount (π)</label><input class="input" id="l-amount" type="number" value="1.00" min="0.01" step="0.01" /></div>
+          <div class="form-group"><label>Memo</label><input class="input" id="l-memo" placeholder="What's this payment for?" /></div>
+          <div class="form-group"><label>Recipient (optional)</label><input class="input" id="l-recipient" placeholder="Pre-fill recipient username" /></div>
+          <div class="form-group" style="display:flex;align-items:flex-end"><button class="btn btn-primary" style="width:100%" onclick="createPaymentLink()">🔗 Generate Link</button></div>
         </div>
       </div>
+      <div class="card">
+        <div class="card-title" style="margin-bottom:14px">Your Links</div>
+        <div id="linksList"></div>
+      </div>
+    </div>
 
-      <!-- WALLET -->
-      <div class="panel" id="panel-wallet">
-        <div class="pi-browser-warning" id="wallet-browser-warn">
-          <i class="ti ti-alert-triangle"></i>
-          <div class="warn-title">Pi Browser Required</div>
-          <div class="warn-sub">Pi Payroll currently works only inside the official Pi Browser.<br>Please open this application using the Pi Browser.</div>
+    <!-- INVOICES -->
+    <div class="page-panel" id="panel-invoices">
+      <div class="page-header"><div><div class="page-title">🧾 Invoices</div><div class="page-sub">Create and manage Pi payment invoices</div></div></div>
+      <div class="card">
+        <div class="card-title">New Invoice</div>
+        <div class="form-grid">
+          <div class="form-group"><label>Client (Pi username)</label><input class="input" id="i-client" placeholder="@client_username" /></div>
+          <div class="form-group"><label>Amount (π)</label><input class="input" id="i-amount" type="number" value="100.00" min="0.01" step="0.01" /></div>
+          <div class="form-group"><label>Description</label><input class="input" id="i-desc" placeholder="Web development, consulting…" /></div>
+          <div class="form-group"><label>Due Date</label><input class="input" id="i-due" type="date" /></div>
         </div>
-        <div class="wallet-grid" id="wallet-grid">
-          <div class="wallet-card">
-            <div class="wallet-card-header">Connected Wallet</div>
-            <div class="wallet-card-value wallet-username" id="wl-username">—</div>
-            <div class="wallet-card-sub" id="wl-status">Not connected</div>
-          </div>
-          <div class="wallet-card">
-            <div class="wallet-card-header">UID</div>
-            <div class="wallet-card-value wallet-uid" id="wl-uid">—</div>
-            <div class="wallet-card-sub">User identifier</div>
-          </div>
-          <div class="wallet-card">
-            <div class="wallet-card-header">Network</div>
-            <div class="wallet-card-value" id="wl-network" style="font-size:16px">Pi Mainnet</div>
-            <div class="wallet-card-sub" id="wl-sdk-status">SDK not initialized</div>
-          </div>
-          <div class="wallet-card">
-            <div class="wallet-card-header">Payroll Statistics</div>
-            <div class="wallet-card-value" id="wl-total-sent"><span class="pi-sym">π</span> 0</div>
-            <div class="wallet-card-sub" id="wl-tx-info">No transactions</div>
-          </div>
-          <div class="wallet-card">
-            <div class="wallet-card-header">Total Pi Sent</div>
-            <div class="wallet-card-value" id="wl-total-pi"><span class="pi-sym">π</span> 0</div>
-            <div class="wallet-card-sub" id="wl-scheduled-info">0 scheduled payments</div>
-          </div>
-          <div class="wallet-card">
-            <div class="wallet-card-header">Transactions</div>
-            <div class="wallet-card-value" id="wl-tx-count">0</div>
-            <div class="wallet-card-sub" id="wl-last-tx">No transactions yet</div>
-          </div>
-        </div>
-        <div class="card">
-          <div class="section-title">Pi SDK Status</div>
-          <div id="wl-sdk-detail" style="font-size:13px;color:var(--text-secondary)">
-            <div>Balance information currently unavailable via Pi SDK.</div>
-            <div style="margin-top:6px;font-size:12px;color:var(--text-muted)">Connect your Pi Wallet to view your account details.</div>
-          </div>
+        <button class="btn btn-primary" onclick="createInvoice()">📝 Create Invoice</button>
+      </div>
+      <div class="card"><div class="card-title">Invoices</div><div id="invoicesList"></div></div>
+    </div>
+
+    <!-- BALANCE -->
+    <div class="page-panel" id="panel-balance">
+      <div class="page-header"><div><div class="page-title">💰 Unified Balance</div><div class="page-sub">Wallet overview · Pi SDK connection status · Network health</div></div></div>
+      <div class="balance-grid">
+        <div class="balance-card"><div class="balance-label">Wallet Balance</div><div class="balance-value" id="bal-amount">— π</div><div class="balance-sub" id="bal-status">Not connected</div></div>
+        <div class="balance-card"><div class="balance-label">Total Sent</div><div class="balance-value" id="bal-sent">0 π</div><div class="balance-sub" id="bal-sent-sub">0 transactions</div></div>
+        <div class="balance-card"><div class="balance-label">Total Received</div><div class="balance-value" id="bal-recv">0 π</div><div class="balance-sub" id="bal-recv-sub">0 transactions</div></div>
+        <div class="balance-card"><div class="balance-label">Active Schedules</div><div class="balance-value" id="bal-sched">0</div><div class="balance-sub">Recurring payments</div></div>
+        <div class="balance-card"><div class="balance-label">Pending Invoices</div><div class="balance-value" id="bal-inv">0</div><div class="balance-sub">Awaiting payment</div></div>
+        <div class="balance-card"><div class="balance-label">Network</div><div class="balance-value" style="font-size:16px">Pi Mainnet</div><div class="balance-sub" id="bal-net-status">SDK initializing…</div></div>
+      </div>
+      <div class="card">
+        <div class="card-title">Network Health</div>
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <div class="settings-row"><span class="settings-label">Pi Network</span><span class="pill pill-success" id="h-pi">Healthy</span></div>
+          <div class="settings-row"><span class="settings-label">Pi SDK</span><span class="pill pill-success" id="h-sdk">Healthy</span></div>
+          <div class="settings-row"><span class="settings-label">Mainnet API</span><span class="pill pill-warning" id="h-main">Checking…</span></div>
+          <div class="settings-row"><span class="settings-label">Testnet API</span><span class="pill pill-warning" id="h-test">Checking…</span></div>
         </div>
       </div>
+    </div>
 
+    <!-- SCHEDULE -->
+    <div class="page-panel" id="panel-schedule">
+      <div class="page-header"><div><div class="page-title">🗓 Payment Schedule</div><div class="page-sub">Automate recurring Pi payments for payroll, subscriptions, and more</div></div></div>
+      <div class="card">
+        <div class="card-title">New Scheduled Payment</div>
+        <div class="form-grid">
+          <div class="form-group"><label>Recipient</label><input class="input" id="sc-recipient" placeholder="@username" /></div>
+          <div class="form-group"><label>Amount (π)</label><input class="input" id="sc-amount" type="number" placeholder="0.00" min="0.01" step="0.01" /></div>
+          <div class="form-group"><label>Frequency</label><select class="input" id="sc-freq"><option>Weekly</option><option>Bi-weekly</option><option selected>Monthly</option><option>Quarterly</option><option>Yearly</option></select></div>
+          <div class="form-group"><label>First Payment</label><input class="input" id="sc-date" type="date" /></div>
+          <div class="form-group"><label>Memo</label><input class="input" id="sc-memo" placeholder="Monthly salary…" /></div>
+          <div class="form-group"><label>Category</label><select class="input" id="sc-category"><option>Salary</option><option>Freelance</option><option>Subscription</option><option>Other</option></select></div>
+        </div>
+        <button class="btn btn-primary" onclick="addSchedule()">🗓 Create Schedule</button>
+      </div>
+      <div class="card"><div class="card-title">Active Schedules</div><div id="scheduleList"></div></div>
+    </div>
+
+    <!-- HISTORY -->
+    <div class="page-panel" id="panel-history">
+      <div class="page-header"><div><div class="page-title">📊 Transaction History</div><div class="page-sub">All Pi payments sent and received via PioneerPIX</div></div></div>
+      <div class="card">
+        <div class="row-between" style="margin-bottom:14px">
+          <div class="row-gap">
+            <input class="input" type="text" id="histSearch" placeholder="Search by username, hash, memo…" style="width:220px" oninput="renderHistory()" />
+            <select class="input" id="histFilter" style="width:140px" onchange="renderHistory()">
+              <option value="">All</option><option value="completed">Completed</option><option value="pending">Pending</option><option value="cancelled">Cancelled</option><option value="failed">Failed</option>
+            </select>
+          </div>
+          <button class="btn btn-sm" onclick="exportHistoryCSV()">⬇ Export CSV</button>
+        </div>
+        <div id="historyList"></div>
+      </div>
+    </div>
+
+    <!-- SETTINGS -->
+    <div class="page-panel" id="panel-settings">
+      <div class="page-header"><div><div class="page-title">⚙️ Settings</div><div class="page-sub">Configure PioneerPIX app preferences</div></div></div>
+      <div class="card">
+        <div class="card-title">Application</div>
+        <div class="settings-row">
+          <div><div class="settings-label">Sandbox Mode</div><div class="settings-desc">Use Pi Testnet for development. Disable for Mainnet.</div></div>
+          <button class="toggle on" id="sandboxToggle" onclick="toggleSandboxSetting()"></button>
+        </div>
+        <div class="settings-row">
+          <div><div class="settings-label">Auto-Connect Wallet</div><div class="settings-desc">Automatically authenticate on app load inside Pi Browser.</div></div>
+          <button class="toggle on" id="autoConnectToggle" onclick="this.classList.toggle('on')"></button>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">About</div>
+        <div class="settings-row"><div class="settings-label">Version</div><span style="color:var(--text-secondary)">2.0.0</span></div>
+        <div class="settings-row"><div class="settings-label">Pi SDK</div><span style="color:var(--text-secondary)">v2.0</span></div>
+        <div class="settings-row"><div class="settings-label">Platform API</div><span style="color:var(--text-secondary)">api.minepi.com/v2</span></div>
+        <div class="settings-row"><div class="settings-label">App Name</div><span style="color:var(--pi-gold)">PioneerPIX</span></div>
+      </div>
     </div>
   </div>
 </div>
 
-<!-- PAYMENT APPROVAL MODAL -->
-<div class="modal-overlay" id="approval-modal" onclick="if(event.target===this)PiWalletManager.cancelApproval()">
-  <div class="modal-box">
-    <div class="modal-title">
-      <i class="ti ti-send" style="color:var(--pi-purple);font-size:22px"></i>
-      PAYROLL SUMMARY
-    </div>
-    <div class="modal-summary-row">
-      <span class="modal-summary-label">Recipients</span>
-      <span class="modal-summary-val" id="modal-recipients">0</span>
-    </div>
-    <div class="modal-summary-row">
-      <span class="modal-summary-label">Total Amount</span>
-      <span class="modal-summary-val" id="modal-total" style="color:var(--pi-purple)">0 PI</span>
-    </div>
-    <div class="modal-summary-row">
-      <span class="modal-summary-label">Categories</span>
-      <div class="modal-category-list" id="modal-categories"></div>
-    </div>
+<!-- AUTH MODAL -->
+
+<!-- PAYMENT MODAL -->
+<div class="modal-overlay hidden" id="payModal">
+  <div class="modal-card">
+    <div class="modal-icon" id="modalIcon">⏳</div>
+    <div class="modal-title" id="modalTitle">Processing</div>
+    <div class="modal-body" id="modalBody">Waiting for Pi SDK…</div>
+    <div class="modal-tx hidden" id="modalTx"></div>
     <div class="modal-actions">
-      <button class="btn" onclick="PiWalletManager.cancelApproval()">Cancel</button>
-      <button class="btn btn-primary" id="modal-approve-btn" onclick="PiWalletManager.approveAndSend()">
-        <i class="ti ti-check"></i>Approve Payroll
-      </button>
+      <button class="btn" id="modalCloseBtn" onclick="closePayModal()" style="display:none">Close</button>
     </div>
   </div>
 </div>
 
 <!-- TOAST -->
-<div class="toast" id="toast-el">
-  <i class="ti ti-check" style="color:#6EE7B7"></i>
-  <span id="toast-msg">Done</span>
-</div>
+<div class="toast" id="toast"><div class="toast-title" id="toastTitle"></div><div class="toast-body" id="toastBody"></div></div>
 
 <script>
-// ── STATE ─────────────────────────────────────────────────
-const state = {
-  queue: [],
-  recurring: [],
-  history: [],
-  csvRows: [],
-  incompletePayments: [],
-};
+/* ─── STATE ─────────────────────────────────────────── */
+let piUser = null, piAccessToken = null, piBalance = 0;
+let isSandbox = true, sdkReady = false;
+let batchPayments = [], scheduledPayments = [], invoices = [], paymentLinks = [];
+let paymentHistory = JSON.parse(localStorage.getItem('pp_history') || '[]');
+let paymentQueue = JSON.parse(localStorage.getItem('pp_queue') || '[]');
 
-// ── PI WALLET MANAGER ──────────────────────────────────────
-const PiWalletManager = {
-  _initialized: false,
-  _connected: false,
-  _user: null,
-  _accessToken: null,
-  _pendingPayment: null,
-  _approvalData: null,
-  _isPiBrowser: false,
+function saveState() {
+  localStorage.setItem('pp_history', JSON.stringify(paymentHistory));
+  localStorage.setItem('pp_queue', JSON.stringify(paymentQueue));
+}
 
-  detectPiBrowser: function() {
-    try {
-      var ua = navigator.userAgent || '';
-      this._isPiBrowser = /PiBrowser/i.test(ua) || (typeof Pi !== 'undefined' && typeof Pi.init === 'function');
-    } catch (e) {
-      this._isPiBrowser = false;
-    }
-    return this._isPiBrowser;
-  },
+/* ─── INIT ──────────────────────────────────────────── */
+async function initSDK() {
+  try {
+    if (typeof window.Pi === 'undefined') { updateAllUI(); return; }
+    await window.Pi.init({ version: '2.0', sandbox: isSandbox });
+    sdkReady = true;
+    updateAllUI();
+  } catch(e) { console.log('SDK init:', e); updateAllUI(); }
+}
 
-  initialize: function() {
-    if (this._initialized) return true;
-    if (!this.detectPiBrowser()) {
-      this.showBrowserWarning();
-      return false;
-    }
-    try {
-      Pi.init({ version: '2.0', sandbox: false });
-      this._initialized = true;
-      this.hideBrowserWarning();
-      this.updateConnectButton();
-      return true;
-    } catch (e) {
-      this._initialized = false;
-      return false;
-    }
-  },
+/* ─── CONNECT ────────────────────────────────────────── */
+async function connectPi() {
+  if (!sdkReady && typeof window.Pi === 'undefined') {
+    showToast('Pi Browser Required', 'Open this app in the Pi Browser to authenticate.', true); return;
+  }
+  try {
+    const auth = await window.Pi.authenticate(['payments', 'username', 'wallet_address'], onIncompletePaymentFound);
+    piUser = auth.user; piAccessToken = auth.accessToken;
+    onAuthSuccess();
+  } catch(e) { showToast('Auth Failed', e.message || 'Could not authenticate.', true); }
+}
 
-  showBrowserWarning: function() {
-    var warn = document.getElementById('pi-browser-warn');
-    if (warn) warn.classList.add('show');
-    var wlWarn = document.getElementById('wallet-browser-warn');
-    if (wlWarn) wlWarn.classList.add('show');
-    var btn = document.getElementById('pi-connect-btn');
-    if (btn) { btn.classList.add('loading'); btn.disabled = true; }
-  },
+function onIncompletePaymentFound(payment) {
+  showToast('Incomplete Payment', `Found: ${payment.identifier}`, true);
+}
 
-  hideBrowserWarning: function() {
-    var warn = document.getElementById('pi-browser-warn');
-    if (warn) warn.classList.remove('show');
-    var wlWarn = document.getElementById('wallet-browser-warn');
-    if (wlWarn) wlWarn.classList.remove('show');
-  },
+function promptConnect() {
+  showToast('Wallet Required', 'Connect your Pi Wallet using the button in the top bar.', true);
+}
 
-  connect: async function() {
-    if (!this._isPiBrowser && !this.detectPiBrowser()) {
-      toast('Pi Browser required. Please open this app inside the Pi Browser.');
-      return;
-    }
-    if (!this._initialized) {
-      if (!this.initialize()) {
-        toast('SDK initialization failed. Please try again.');
-        return;
+function onAuthSuccess() {
+  const u = piUser?.username || 'pioneer', addr = piUser?.wallet_address || '';
+  document.getElementById('connDot').style.background = 'var(--green)';
+  document.getElementById('userLabel').textContent = `@${u}`;
+  document.getElementById('walletAddr').textContent = addr ? addr.slice(0,14)+'…'+addr.slice(-6) : `@${u}`;
+  updateAllUI();
+  showToast('Connected!', `Welcome, @${u}. Ready to send Pi.`);
+}
+
+
+
+/* ─── SEND ───────────────────────────────────────────── */
+function updateSendSummary() {
+  const amt = parseFloat(document.getElementById('s-amount').value) || 0;
+  document.getElementById('s-sum-send').textContent = amt.toFixed(2) + ' π';
+  document.getElementById('s-sum-rec').textContent = '≈ ' + amt.toFixed(2) + ' π';
+}
+
+function setSendPct(pct, el) {
+  document.querySelectorAll('#panel-send .pct-btn').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('s-amount').value = ((piBalance * pct) / 100).toFixed(2);
+  updateSendSummary();
+}
+
+async function sendPayment() {
+  if (!piUser) { promptConnect(); return; }
+  const recipient = document.getElementById('s-recipient').value.trim();
+  const memo = document.getElementById('s-memo').value.trim() || 'PioneerPIX transfer';
+  const amount = parseFloat(document.getElementById('s-amount').value);
+  if (!recipient) { showToast('Missing Recipient', 'Enter a username or wallet address.', true); return; }
+  if (!amount || amount <= 0) { showToast('Invalid Amount', 'Enter amount > 0.', true); return; }
+
+  openPayModal('⏳', 'Initiating Payment', `Sending ${amount} π to ${recipient}…`);
+
+  try {
+    window.Pi.createPayment({ amount, memo, metadata: { recipient, app: 'PioneerPIX' } }, {
+      onReadyForServerApproval: (pid) => {
+        updatePayModal('🔏', 'Server Approval', `Payment ID: ${pid}\nBackend would call POST /payments/${pid}/approve`);
+      },
+      onReadyForServerCompletion: (pid, txid) => {
+        updatePayModal('✅', 'Complete!', `TxID: ${txid}`);
+        document.getElementById('modalTx').textContent = `TxID: ${txid}`;
+        document.getElementById('modalTx').classList.remove('hidden');
+        document.getElementById('modalCloseBtn').style.display = 'inline-flex';
+        recordPayment('out', recipient, amount, memo, 'completed', txid, pid);
+        updateAllUI();
+      },
+      onCancel: (pid) => {
+        updatePayModal('❌', 'Cancelled', 'Payment cancelled in Pi Wallet.');
+        document.getElementById('modalCloseBtn').style.display = 'inline-flex';
+        recordPayment('out', recipient, amount, memo, 'cancelled', null, pid);
+      },
+      onError: (err) => {
+        updatePayModal('⚠️', 'Error', err.message || 'Payment failed.');
+        document.getElementById('modalCloseBtn').style.display = 'inline-flex';
       }
-    }
-    if (this._connected) {
-      toast('Already connected as @' + this.getUsername());
-      return;
-    }
-    var btn = document.getElementById('pi-connect-btn');
-    btn.classList.add('loading');
-    try {
-      var scopes = ['payments', 'username'];
-      var auth = await Pi.authenticate(scopes, this._onIncompletePaymentFound.bind(this));
-      this._user = auth.user;
-      this._accessToken = auth.accessToken;
-      this._connected = true;
-      this.updateConnectButton();
-      this.updateWalletPanel();
-      toast('Connected as @' + this.getUsername());
-    } catch (e) {
-      this._connected = false;
-      toast('Authentication failed. ' + (e.message || 'Please try again.'));
-    } finally {
-      btn.classList.remove('loading');
-    }
-  },
-
-  disconnect: function() {
-    this._connected = false;
-    this._user = null;
-    this._accessToken = null;
-    this.updateConnectButton();
-    this.updateWalletPanel();
-    toast('Wallet disconnected.');
-  },
-
-  isConnected: function() {
-    return this._connected && this._user !== null;
-  },
-
-  getUser: function() {
-    return this._user;
-  },
-
-  getAccessToken: function() {
-    return this._accessToken;
-  },
-
-  getUsername: function() {
-    return this._user ? this._user.username : null;
-  },
-
-  getUID: function() {
-    return this._user ? this._user.uid : null;
-  },
-
-  _onIncompletePaymentFound: function(payment) {
-    state.incompletePayments.push(payment);
-    this.showIncompleteBanner();
-    if (this._connected) {
-      this.completeIncompletePayment(payment);
-    }
-  },
-
-  showIncompleteBanner: function() {
-    var banner = document.getElementById('incomplete-banner');
-    var text = document.getElementById('inc-text');
-    var detail = document.getElementById('inc-detail');
-    var btn = document.getElementById('inc-complete-btn');
-    if (state.incompletePayments.length === 0) {
-      banner.classList.remove('show');
-      return;
-    }
-    text.textContent = 'You have ' + state.incompletePayments.length + ' incomplete payroll transaction(s).';
-    detail.textContent = 'Payment ID: ' + state.incompletePayments[0].identifier;
-    if (state.incompletePayments.length === 1 && this._connected) {
-      btn.style.display = 'inline-flex';
-    } else {
-      btn.style.display = 'none';
-    }
-    banner.classList.add('show');
-  },
-
-  completeIncompletePayment: function(payment) {
-    var p = payment || state.incompletePayments[0];
-    if (!p) return;
-    if (!this._connected) { toast('Please connect your Pi Wallet first.'); return; }
-    try {
-      Pi.createPayment({
-        amount: p.amount,
-        memo: p.memo || 'Payroll payment',
-        metadata: p.metadata || {}
-      }, {
-        onReadyForServerApproval: function(paymentId) {
-          toast('Payment ' + paymentId + ' approved on server.');
-        },
-        onReadyForServerCompletion: function(paymentId, txid) {
-          toast('Payment completed. TX Hash: ' + txid);
-          state.incompletePayments = state.incompletePayments.filter(function(x) { return x.identifier !== p.identifier; });
-          PiWalletManager.showIncompleteBanner();
-        },
-        onCancel: function() { toast('Payment cancelled.'); },
-        onError: function(err) { toast('Error: ' + (err.message || 'Payment failed.')); }
-      });
-    } catch (e) {
-      toast('Failed to complete payment: ' + (e.message || 'Unknown error'));
-    }
-  },
-
-  updateConnectButton: function() {
-    var btn = document.getElementById('pi-connect-btn');
-    var label = document.getElementById('pi-connect-label');
-    if (!btn || !label) return;
-    if (!this._isPiBrowser) {
-      btn.classList.add('loading');
-      btn.disabled = true;
-      label.textContent = 'Pi Browser Required';
-      return;
-    }
-    btn.disabled = false;
-    btn.classList.remove('loading');
-    if (this._connected) {
-      btn.classList.add('connected');
-      btn.innerHTML = '<span class="status-dot green"></span> <span id="pi-connect-label">Connected</span>';
-      btn.onclick = function() { PiWalletManager.showWalletInfo(); };
-    } else {
-      btn.classList.remove('connected');
-      btn.innerHTML = '<i class="ti ti-plug"></i><span id="pi-connect-label">Connect Pi Wallet</span>';
-      btn.onclick = function() { PiWalletManager.connect(); };
-    }
-  },
-
-  showWalletInfo: function() {
-    show('wallet', null);
-  },
-
-  processPayroll: function(queueItems) {
-    if (!this._isPiBrowser && !this.detectPiBrowser()) {
-      toast('Pi Browser required to send payments.');
-      return;
-    }
-    if (queueItems.length === 0) { toast('Queue is empty.'); return; }
-
-    var total = queueItems.reduce(function(s, r) { return s + r.val; }, 0);
-    var recipients = queueItems.length;
-    var cats = {};
-    queueItems.forEach(function(r) { cats[r.cat] = (cats[r.cat] || 0) + 1; });
-
-    this._approvalData = {
-      queue: queueItems.slice(),
-      total: total,
-      recipients: recipients,
-      categories: cats
-    };
-
-    document.getElementById('modal-recipients').textContent = recipients;
-    document.getElementById('modal-total').textContent = fmt(total) + ' PI';
-    var catHtml = '';
-    for (var k in cats) {
-      catHtml += '<span class="pill pill-purple">' + k + '</span>';
-    }
-    document.getElementById('modal-categories').innerHTML = catHtml;
-    document.getElementById('approval-modal').classList.add('show');
-  },
-
-  cancelApproval: function() {
-    this._approvalData = null;
-    document.getElementById('approval-modal').classList.remove('show');
-    toast('Payroll cancelled.');
-  },
-
-  approveAndSend: async function() {
-    if (!this._approvalData) return;
-    var data = this._approvalData;
-    document.getElementById('approval-modal').classList.remove('show');
-
-    if (!this._connected) {
-      toast('Please connect your Pi Wallet first.');
-      return;
-    }
-
-    var items = data.queue;
-    var sent = 0;
-    var failed = 0;
-
-    for (var i = 0; i < items.length; i++) {
-      try {
-        await this._sendPiPayment(items[i]);
-        sent++;
-      } catch (e) {
-        failed++;
-        items[i]._error = e.message || 'Unknown error';
-        this._recordFailedPayment(items[i], e.message);
-      }
-    }
-
-    if (sent > 0) {
-      state.queue = [];
-      renderQueue();
-      renderHistory();
-      updateReports();
-      updateDashboard();
-      updateWalletPanel();
-      toast(sent + ' payment(s) sent via Pi Wallet — ' + fmt(data.total) + ' PI total');
-    }
-    if (failed > 0) {
-      toast(failed + ' payment(s) failed. Check history for details.', 4000);
-    }
-    this._approvalData = null;
-  },
-
-  _sendPiPayment: function(item) {
-    var self = this;
-    return new Promise(function(resolve, reject) {
-      Pi.createPayment({
-        amount: item.val,
-        memo: item.memo || 'Pi Payroll',
-        metadata: {
-          recipient: item.name,
-          category: item.cat,
-          payroll_id: 'pp_' + Date.now() + '_' + Math.random().toString(36).slice(2,8)
-        }
-      }, {
-        onReadyForServerApproval: function(paymentId) {
-          self._recordPayment(item, paymentId, null, 'pending');
-        },
-        onReadyForServerCompletion: function(paymentId, txid) {
-          self._recordPayment(item, paymentId, txid, 'completed');
-          resolve({ paymentId: paymentId, txid: txid });
-        },
-        onCancel: function(paymentId) {
-          self._recordPayment(item, paymentId, null, 'cancelled');
-          reject(new Error('Payment cancelled by user.'));
-        },
-        onError: function(err, payment) {
-          reject(new Error(err.message || 'Payment failed'));
-        }
-      });
     });
-  },
-
-  _recordPayment: function(item, paymentId, txid, status) {
-    var display = item.name.startsWith('@')
-      ? item.name.slice(1).replace(/_/g, ' ').replace(/\b\w/g, function(c) { return c.toUpperCase(); })
-      : item.display || item.name;
-    var hashStr = txid || paymentId || this._fallbackTxId();
-    state.history.unshift({
-      dir: 'out',
-      name: item.name,
-      display: display,
-      hash: hashStr,
-      piPaymentId: paymentId || null,
-      txHash: txid || null,
-      val: item.val,
-      date: fmtDate(),
-      status: status,
-      cat: item.cat,
-      memo: item.memo,
-      username: item.name,
-      authTime: new Date().toISOString()
-    });
-  },
-
-  _recordFailedPayment: function(item, errorMsg) {
-    var display = item.name.startsWith('@')
-      ? item.name.slice(1).replace(/_/g, ' ').replace(/\b\w/g, function(c) { return c.toUpperCase(); })
-      : item.display || item.name;
-    state.history.unshift({
-      dir: 'out',
-      name: item.name,
-      display: display,
-      hash: 'FAILED',
-      piPaymentId: null,
-      txHash: null,
-      val: item.val,
-      date: fmtDate(),
-      status: 'failed',
-      cat: item.cat,
-      memo: item.memo + ' (Error: ' + errorMsg + ')',
-      username: item.name,
-      authTime: null
-    });
-  },
-
-  _fallbackTxId: function() {
-    return Array.from({ length: 20 }, function() { return Math.floor(Math.random() * 16).toString(16); }).join('').toUpperCase();
-  },
-
-  updateWalletPanel: function() {
-    var wlWarn = document.getElementById('wallet-browser-warn');
-    if (!this._isPiBrowser && wlWarn) {
-      wlWarn.classList.add('show');
-    } else if (wlWarn) {
-      wlWarn.classList.remove('show');
-    }
-
-    var sent = state.history.filter(function(t) { return t.dir === 'out' && (t.status === 'completed' || t.status === 'confirmed'); })
-      .reduce(function(s, t) { return s + t.val; }, 0);
-    var txCount = state.history.length;
-    var scheduled = state.recurring.filter(function(r) { return r.on; }).length;
-    var lastTx = state.history.length > 0 ? state.history[0] : null;
-
-    document.getElementById('wl-username').textContent = this._connected && this.getUsername() ? '@' + this.getUsername() : '—';
-    document.getElementById('wl-uid').textContent = this._connected && this.getUID() ? this.getUID() : '—';
-    document.getElementById('wl-network').textContent = 'Pi Mainnet';
-    document.getElementById('wl-status').textContent = this._connected ? 'Connected' : 'Not connected';
-
-    var sdkStatus = document.getElementById('wl-sdk-status');
-    var sdkDetail = document.getElementById('wl-sdk-detail');
-    if (this._initialized && this._connected) {
-      sdkStatus.textContent = 'SDK initialized · Authenticated';
-      sdkStatus.style.color = 'var(--success)';
-      sdkDetail.innerHTML = '<div>Pi SDK v2.0 · Mainnet · Authenticated as @' + this.getUsername() + '</div>' +
-        '<div style="margin-top:6px;font-size:12px;color:var(--text-muted)">Balance information currently unavailable via Pi SDK.</div>';
-    } else if (this._initialized) {
-      sdkStatus.textContent = 'SDK initialized · Not authenticated';
-      sdkStatus.style.color = 'var(--pi-amber)';
-      sdkDetail.innerHTML = '<div>SDK is initialized but wallet is not connected.</div>' +
-        '<div style="margin-top:6px;font-size:12px;color:var(--text-muted)">Connect your Pi Wallet to use payment features.</div>';
-    } else {
-      sdkStatus.textContent = 'SDK not initialized';
-      sdkStatus.style.color = 'var(--text-muted)';
-      sdkDetail.innerHTML = '<div>Balance information currently unavailable via Pi SDK.</div>' +
-        '<div style="margin-top:6px;font-size:12px;color:var(--text-muted)">Connect your Pi Wallet to view your account details.</div>';
-    }
-
-    document.getElementById('wl-total-sent').innerHTML = '<span class="pi-sym">π</span> ' + fmt(sent);
-    document.getElementById('wl-total-pi').innerHTML = '<span class="pi-sym">π</span> ' + fmt(sent);
-    document.getElementById('wl-tx-count').textContent = txCount;
-    document.getElementById('wl-tx-info').textContent = txCount > 0 ? 'Across ' + txCount + ' transaction(s)' : 'No transactions';
-    document.getElementById('wl-scheduled-info').textContent = scheduled + ' scheduled payment' + (scheduled !== 1 ? 's' : '');
-    document.getElementById('wl-last-tx').textContent = lastTx
-      ? 'Last: ' + lastTx.date + ' · ' + lastTx.status
-      : 'No transactions yet';
-  }
-};
-
-(function() {
-  PiWalletManager.detectPiBrowser();
-  if (PiWalletManager._isPiBrowser) {
-    PiWalletManager.initialize();
-  } else {
-    PiWalletManager.showBrowserWarning();
-  }
-})();
-
-const PAGES = {
-  dashboard: 'Dashboard',
-  payments: 'Payments',
-  csv: 'CSV Upload',
-  recurring: 'Recurring Payments',
-  history: 'On-Chain History',
-  reports: 'Reports',
-  sdk: 'SDK Integration',
-  wallet: 'Wallet',
-};
-
-// ── NAVIGATION ─────────────────────────────────────────────
-function show(id, btn) {
-  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
-  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-  const panel = document.getElementById('panel-' + id);
-  if (panel) panel.classList.add('active');
-  document.getElementById('page-title').textContent = PAGES[id] || id;
-  if (btn) {
-    btn.classList.add('active');
-  } else {
-    document.querySelectorAll('.nav-item').forEach(n => {
-      if ((n.getAttribute('onclick') || '').includes("'" + id + "'")) n.classList.add('active');
-    });
-  }
-  if (id === 'dashboard') updateDashboard();
-  if (id === 'reports') updateReports();
-  if (id === 'wallet') updateWalletPanel();
-}
-
-// ── TOAST ──────────────────────────────────────────────────
-function toast(msg, duration = 2800) {
-  const el = document.getElementById('toast-el');
-  document.getElementById('toast-msg').textContent = msg;
-  el.classList.add('show');
-  setTimeout(() => el.classList.remove('show'), duration);
-}
-
-// ── DASHBOARD ──────────────────────────────────────────────
-function updateDashboard() {
-  const sent = state.history.filter(t => t.dir === 'out').reduce((s, t) => s + t.val, 0);
-  const recipients = new Set(state.history.filter(t => t.dir === 'out').map(t => t.name)).size;
-  const scheduled = state.recurring.filter(r => r.on).length;
-
-  document.getElementById('dash-sent').innerHTML = `<span class="pi-sym">π</span> ${fmt(sent)}`;
-  document.getElementById('dash-sent-sub').textContent = sent > 0 ? `Across ${state.history.filter(t=>t.dir==='out').length} transactions` : 'No payments yet';
-  document.getElementById('dash-recipients').textContent = recipients;
-  document.getElementById('dash-rec-sub').textContent = recipients > 0 ? `${recipients} unique recipient${recipients>1?'s':''}` : 'No recipients yet';
-  document.getElementById('dash-txcount').textContent = state.history.length;
-  document.getElementById('dash-scheduled').textContent = scheduled;
-  document.getElementById('dash-sched-sub').textContent = scheduled > 0 ? `${scheduled} active schedule${scheduled>1?'s':''}` : 'No schedules set';
-
-  // recent transactions
-  const recentEl = document.getElementById('dash-recent');
-  if (state.history.length === 0) {
-    recentEl.innerHTML = `<div class="empty-state"><i class="ti ti-clock"></i><div class="empty-state-title">No transactions yet</div><div class="empty-state-sub">Payments you send will appear here</div></div>`;
-  } else {
-    recentEl.innerHTML = '';
-    state.history.slice(0, 5).forEach(t => {
-      recentEl.innerHTML += txRow(t);
-    });
-  }
-
-  // category breakdown
-  const catEl = document.getElementById('dash-categories');
-  const cats = {};
-  state.history.filter(t => t.dir === 'out').forEach(t => { cats[t.cat] = (cats[t.cat] || 0) + t.val; });
-  const catKeys = Object.keys(cats);
-  if (catKeys.length === 0) {
-    catEl.innerHTML = `<div class="empty-state"><i class="ti ti-chart-pie"></i><div class="empty-state-title">No data yet</div><div class="empty-state-sub">Categories will appear after your first payment</div></div>`;
-  } else {
-    catEl.innerHTML = '<div style="display:flex;flex-direction:column;gap:8px">';
-    catKeys.forEach(k => {
-      catEl.innerHTML += `<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 12px;background:var(--surface-0);border-radius:8px;border:0.5px solid var(--border)">
-        <span class="pill pill-gray">${k}</span>
-        <span class="pi-amount" style="color:var(--pi-purple)">π ${fmt(cats[k])}</span>
-      </div>`;
-    });
-    catEl.innerHTML += '</div>';
+  } catch(e) {
+    updatePayModal('⚠️', 'SDK Error', e.message || 'Could not create payment.');
+    document.getElementById('modalCloseBtn').style.display = 'inline-flex';
   }
 }
 
-// ── HELPERS ────────────────────────────────────────────────
-function fmt(n) {
-  return parseFloat(n).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+function openPayModal(icon, title, body) {
+  document.getElementById('modalIcon').textContent = icon;
+  document.getElementById('modalTitle').textContent = title;
+  document.getElementById('modalBody').textContent = body;
+  document.getElementById('modalTx').classList.add('hidden');
+  document.getElementById('modalCloseBtn').style.display = 'none';
+  document.getElementById('payModal').classList.remove('hidden');
+}
+function updatePayModal(icon, title, body) {
+  document.getElementById('modalIcon').textContent = icon;
+  document.getElementById('modalTitle').textContent = title;
+  document.getElementById('modalBody').textContent = body;
+}
+function closePayModal() {
+  document.getElementById('payModal').classList.add('hidden');
+  document.getElementById('s-amount').value = '1.00';
+  document.getElementById('s-recipient').value = '';
+  document.getElementById('s-memo').value = '';
+  updateSendSummary();
 }
 
-function fmtDate() {
-  return new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
-    + ' · ' + new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+/* ─── BATCH ──────────────────────────────────────────── */
+function addToBatch() {
+  const r = document.getElementById('b-recipient').value.trim();
+  const a = parseFloat(document.getElementById('b-amount').value);
+  const m = document.getElementById('b-memo').value.trim() || '—';
+  const c = document.getElementById('b-category').value;
+  if (!r || !a || a <= 0) { showToast('Invalid', 'Enter recipient and amount.', true); return; }
+  batchPayments.push({ recipient: r, amount: a, memo: m, category: c });
+  document.getElementById('b-recipient').value = '';
+  document.getElementById('b-amount').value = '';
+  document.getElementById('b-memo').value = '';
+  renderBatch();
+  showToast('Added', `${a} π to ${r}`);
 }
 
-function randomHash() {
-  return Array.from({ length: 20 }, () => Math.floor(Math.random() * 16).toString(16)).join('').toUpperCase();
+function renderBatch() {
+  const pv = document.getElementById('batchPreview');
+  const tb = document.getElementById('batchBody');
+  const total = batchPayments.reduce((s, p) => s + p.amount, 0);
+  document.getElementById('batchTitle').textContent = `Batch (${batchPayments.length} recipients · ${total.toFixed(2)} π)`;
+  if (batchPayments.length === 0) { pv.style.display = 'none'; return; }
+  pv.style.display = 'block';
+  tb.innerHTML = batchPayments.map((p, i) => `<tr>
+    <td style="color:var(--text-muted)">${i+1}</td>
+    <td style="font-weight:500">${p.recipient}</td>
+    <td style="color:var(--pi-gold);font-weight:600">π ${p.amount.toFixed(2)}</td>
+    <td style="color:var(--text-secondary)">${p.memo}</td>
+    <td><span class="pill pill-gray">${p.category}</span></td>
+    <td><button class="btn btn-sm btn-danger" onclick="batchPayments.splice(${i},1);renderBatch()">✕</button></td>
+  </tr>`).join('');
 }
 
-function txRow(t) {
-  return `<div class="history-tx">
-    <div class="tx-icon ${t.dir}"><i class="ti ti-arrow-${t.dir==='out'?'up-right':'down-left'}"></i></div>
-    <div class="tx-info">
-      <div class="tx-name">${t.display}</div>
-      <div class="tx-hash">${t.hash}</div>
-    </div>
-    <div class="tx-right">
-      <div class="tx-amount ${t.dir}">${t.dir==='out'?'-':'+'} π ${fmt(t.val)}</div>
-      <div class="tx-date">${t.date}</div>
-    </div>
-  </div>`;
+function clearBatch() { batchPayments = []; renderBatch(); showToast('Cleared', 'Batch cleared.'); }
+
+function sendBatch() {
+  if (batchPayments.length === 0) { showToast('Empty', 'No payments in batch.', true); return; }
+  if (!piUser) { promptConnect(); return; }
+
+  paymentQueue.push(...batchPayments.map(p => ({ ...p, id: Date.now() + Math.random(), status: 'pending' })));
+  saveState();
+  batchPayments = [];
+  renderBatch();
+  renderQueue();
+  showToast('Queued', `${paymentQueue.length} payments in queue. Process from Queue page.`);
+  navTo('queue', document.querySelector('.nav-item:nth-child(3)'));
 }
 
-// ── PAYMENT QUEUE ──────────────────────────────────────────
+function handleCSV(input) {
+  const file = input.files[0]; if (!file) return;
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    const lines = e.target.result.trim().split('\n').filter(l => l.trim());
+    if (lines.length < 2) { showToast('Invalid CSV', 'Need header + data rows.', true); return; }
+    let added = 0;
+    lines.slice(1).forEach(line => {
+      const cols = line.split(',').map(c => c.trim().replace(/^["']|["']$/g,''));
+      const recipient = cols[1] || cols[0] || '';
+      const amount = parseFloat((cols[2] || '0').replace(/[^\d.]/g, ''));
+      const memo = cols[3] || '—';
+      const category = cols[4] || 'Other';
+      if (recipient && amount > 0) { batchPayments.push({ recipient, amount, memo, category }); added++; }
+    });
+    renderBatch();
+    showToast('CSV Imported', `${added} payments loaded.`);
+  };
+  reader.readAsText(file);
+  input.value = '';
+}
+
+function downloadCSVTemplate() {
+  const csv = 'name,pi_username,amount,memo,category\nEmployee,@username,100.00,Payment description,Salary\n';
+  const blob = new Blob([csv], { type: 'text/csv' });
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'pioneerpix-template.csv'; a.click();
+}
+
+/* ─── QUEUE ──────────────────────────────────────────── */
 function renderQueue() {
-  const tbody = document.getElementById('payment-queue');
-  document.getElementById('queue-count').textContent = state.queue.length + ' in queue';
-  if (state.queue.length === 0) {
-    tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;color:var(--text-muted);padding:28px">Queue is empty. Add a payment above or import a CSV.</td></tr>`;
+  const el = document.getElementById('queueContent');
+  document.getElementById('queueHeader').textContent = `Queue (${paymentQueue.length} items · ${paymentQueue.reduce((s,p)=>s+p.amount,0).toFixed(2)} π)`;
+  if (paymentQueue.length === 0) {
+    el.innerHTML = '<div class="empty-state"><div class="empty-state-icon">⏱</div><div class="empty-state-title">Queue is empty</div><div class="empty-state-sub">Add payments from Send Pi or Batch Payments</div></div>';
     return;
   }
-  tbody.innerHTML = '';
-  state.queue.forEach((r, i) => {
-    tbody.innerHTML += `<tr>
-      <td style="font-weight:500">${r.display}</td>
-      <td style="color:var(--pi-purple);font-family:monospace">${r.name}</td>
-      <td class="pi-amount">π ${fmt(r.val)}</td>
-      <td style="color:var(--text-secondary)">${r.memo}</td>
-      <td><span class="pill pill-gray">${r.cat}</span></td>
-      <td><span class="pill pill-warning">pending</span></td>
-      <td><button class="btn btn-sm" onclick="removeFromQueue(${i})"><i class="ti ti-trash" style="font-size:13px"></i></button></td>
-    </tr>`;
-  });
-}
-
-function addToQueue() {
-  const recipient = document.getElementById('pay-recipient').value.trim();
-  const amount = parseFloat(document.getElementById('pay-amount').value);
-  const memo = document.getElementById('pay-memo').value.trim();
-  const cat = document.getElementById('pay-category').value;
-  if (!recipient || !amount || amount <= 0) { toast('Enter a recipient and amount.'); return; }
-  const display = recipient.startsWith('@')
-    ? recipient.slice(1).replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase())
-    : 'External address';
-  state.queue.push({ name: recipient, display, val: amount, memo: memo || '—', cat });
-  renderQueue();
-  document.getElementById('pay-recipient').value = '';
-  document.getElementById('pay-amount').value = '';
-  document.getElementById('pay-memo').value = '';
-  toast(`Added to queue — π ${fmt(amount)}`);
-}
-
-function removeFromQueue(i) {
-  state.queue.splice(i, 1);
-  renderQueue();
-}
-
-function clearQueue() {
-  state.queue = [];
-  renderQueue();
-  toast('Queue cleared.');
+  el.innerHTML = '<div class="table-wrap"><table><thead><tr><th>#</th><th>Recipient</th><th>Amount</th><th>Memo</th><th>Category</th><th>Status</th><th></th></tr></thead><tbody>' +
+    paymentQueue.map((p, i) => `<tr>
+      <td style="color:var(--text-muted)">${i+1}</td>
+      <td style="font-weight:500">${p.recipient}</td>
+      <td style="color:var(--pi-gold);font-weight:600">π ${p.amount.toFixed(2)}</td>
+      <td style="color:var(--text-secondary)">${p.memo}</td>
+      <td><span class="pill pill-gray">${p.category||'Other'}</span></td>
+      <td><span class="pill pill-warning">${p.status}</span></td>
+      <td><button class="btn btn-sm btn-danger" onclick="paymentQueue.splice(${i},1);saveState();renderQueue()">✕</button></td>
+    </tr>`).join('') + '</tbody></table></div>';
 }
 
 function processQueue() {
-  if (state.queue.length === 0) { toast('Queue is empty.'); return; }
-  if (PiWalletManager._isPiBrowser && PiWalletManager.isConnected()) {
-    PiWalletManager.processPayroll(state.queue);
+  if (paymentQueue.length === 0) { showToast('Empty', 'No payments in queue.', true); return; }
+  if (!piUser) { promptConnect(); return; }
+  if (!sdkReady) { showToast('Pi SDK Required', 'Open this app in Pi Browser to process payments.', true); return; }
+
+  openPayModal('⏳', 'Processing Queue', `Starting ${paymentQueue.length} payment(s) via Pi SDK…`);
+  processNextInQueue();
+}
+
+async function processNextInQueue() {
+  if (paymentQueue.length === 0) {
+    updatePayModal('✅', 'Queue Complete!', 'All queued payments processed.');
+    document.getElementById('modalCloseBtn').style.display = 'inline-flex';
+    updateAllUI();
     return;
   }
-  if (!PiWalletManager._isPiBrowser) {
-    toast('Pi Browser required for Pi Wallet payments. Sending as offline record...', 3500);
-  }
-  const total = state.queue.reduce((s, r) => s + r.val, 0);
-  const count = state.queue.length;
-  state.queue.forEach(r => {
-    state.history.unshift({
-      dir: 'out', name: r.name, display: r.display,
-      hash: randomHash(), val: r.val, piPaymentId: null, txHash: null,
-      date: fmtDate(), status: 'confirmed', cat: r.cat, memo: r.memo,
-      username: r.name, authTime: new Date().toISOString(),
+  const p = paymentQueue[0];
+  const remaining = paymentQueue.length;
+  updatePayModal('⏳', 'Processing Queue', `Sending to ${p.recipient} — ${remaining} remaining…`);
+
+  try {
+    await new Promise((resolve, reject) => {
+      window.Pi.createPayment({
+        amount: p.amount,
+        memo: p.memo || 'PioneerPIX batch payment',
+        metadata: { recipient: p.recipient, category: p.category, app: 'PioneerPIX' }
+      }, {
+        onReadyForServerApproval: async (pid) => {
+          // Backend: POST /v2/payments/{pid}/approve
+        },
+        onReadyForServerCompletion: (pid, txid) => {
+          paymentQueue.shift();
+          saveState();
+          renderQueue();
+          recordPayment('out', p.recipient, p.amount, p.memo, 'completed', txid, pid);
+          resolve();
+        },
+        onCancel: () => {
+          paymentQueue.shift();
+          saveState();
+          renderQueue();
+          recordPayment('out', p.recipient, p.amount, p.memo, 'cancelled');
+          resolve();
+        },
+        onError: (err) => {
+          paymentQueue.shift();
+          saveState();
+          renderQueue();
+          recordPayment('out', p.recipient, p.amount, p.memo + ' (error)', 'failed');
+          resolve();
+        }
+      });
     });
-  });
-  state.queue = [];
-  renderQueue();
-  renderHistory();
-  updateReports();
-  updateWalletPanel();
-  toast(`✓ ${count} payment${count > 1 ? 's' : ''} sent — π ${fmt(total)} total`);
+    processNextInQueue();
+  } catch(e) {
+    updatePayModal('⚠️', 'Payment Error', e.message || 'Failed to process payment.');
+    document.getElementById('modalCloseBtn').style.display = 'inline-flex';
+  }
 }
 
-renderQueue();
+function clearQueue() { paymentQueue = []; saveState(); renderQueue(); showToast('Cleared', 'Queue cleared.'); }
 
-// ── CSV ────────────────────────────────────────────────────
-function handleUploadClick() {
-  document.getElementById('csv-file-input').click();
-}
-
-function handleFileSelect(input) {
-  const file = input.files[0];
-  if (!file) return;
-  const zone = document.getElementById('upload-zone');
-  zone.style.borderColor = 'var(--pi-purple)';
-  zone.style.background = 'var(--pi-purple-pale)';
-  zone.innerHTML = `<i class="ti ti-loader" style="animation:spin 1s linear infinite"></i><div class="upload-title">Processing ${file.name}…</div>`;
-
-  const reader = new FileReader();
-  reader.onload = function(e) {
-    const text = e.target.result;
-    parseCSV(text, file.name);
+/* ─── LINKS ──────────────────────────────────────────── */
+function createPaymentLink() {
+  const amt = parseFloat(document.getElementById('l-amount').value) || 1;
+  const memo = document.getElementById('l-memo').value.trim() || 'Pi payment';
+  const rec = document.getElementById('l-recipient').value.trim();
+  const id = Math.random().toString(36).slice(2,10);
+  const link = {
+    id, amount: amt, memo, recipient: rec,
+    url: `https://pioneerpix.pages.dev/pay/${id}?amount=${amt}&memo=${encodeURIComponent(memo)}${rec ? '&to=' + encodeURIComponent(rec) : ''}`,
+    created: new Date().toISOString(), clicks: 0
   };
-  reader.readAsText(file);
+  paymentLinks.unshift(link);
+  document.getElementById('l-amount').value = '1.00';
+  document.getElementById('l-memo').value = '';
+  document.getElementById('l-recipient').value = '';
+  renderLinks();
+  showToast('Link Created!', 'Share this link to receive Pi.');
 }
 
-function parseCSV(text, filename) {
-  const lines = text.trim().split('\n').filter(l => l.trim());
-  if (lines.length < 2) { toast('CSV appears empty or invalid.'); resetUploadZone(); return; }
-
-  const headers = lines[0].split(',').map(h => h.trim().toLowerCase().replace(/[^a-z_]/g,''));
-  const nameIdx = headers.findIndex(h => h.includes('name') && !h.includes('user'));
-  const userIdx = headers.findIndex(h => h.includes('user') || h.includes('username') || h.includes('pi'));
-  const amtIdx  = headers.findIndex(h => h.includes('amount') || h.includes('valor') || h.includes('val'));
-  const memoIdx = headers.findIndex(h => h.includes('memo') || h.includes('note') || h.includes('ref'));
-  const catIdx  = headers.findIndex(h => h.includes('cat') || h.includes('type'));
-
-  const rows = [];
-  let parseErrors = 0;
-
-  lines.slice(1).forEach((line, i) => {
-    const cols = line.split(',').map(c => c.trim().replace(/^["']|["']$/g, ''));
-    const name  = nameIdx >= 0 ? cols[nameIdx] : 'Row ' + (i + 2);
-    const user  = userIdx >= 0 ? cols[userIdx] : '';
-    const rawAmt = amtIdx >= 0 ? cols[amtIdx] : '';
-    const amount = parseFloat(rawAmt.replace(/[^\d.]/g, ''));
-    const memo   = memoIdx >= 0 ? cols[memoIdx] : '—';
-    const cat    = catIdx >= 0 ? cols[catIdx] : 'Other';
-
-    const valid = user.length > 0 && !isNaN(amount) && amount > 0;
-    if (!valid) parseErrors++;
-    rows.push({ name, user, val: amount || 0, memo, cat, valid });
-  });
-
-  state.csvRows = rows;
-
-  const zone = document.getElementById('upload-zone');
-  zone.innerHTML = `<i class="ti ti-check" style="color:var(--success)"></i>
-    <div class="upload-title">${filename} loaded</div>
-    <div class="upload-sub">${rows.length} row${rows.length !== 1 ? 's' : ''} detected${parseErrors > 0 ? ` · ${parseErrors} with issues` : ''}</div>`;
-
-  const preview = document.getElementById('csv-preview');
-  const body = document.getElementById('csv-body');
-  const validRows = rows.filter(r => r.valid);
-  const total = validRows.reduce((s, r) => s + r.val, 0);
-  document.getElementById('csv-title').textContent =
-    `Preview — ${rows.length} rows · π ${fmt(total)} total (${validRows.length} valid)`;
-
-  body.innerHTML = '';
-  rows.forEach((row, i) => {
-    const cls = row.valid ? 'pill-success' : 'pill-warning';
-    const label = row.valid ? '✓ valid' : '⚠ invalid';
-    body.innerHTML += `<tr>
-      <td style="color:var(--text-muted)">${i + 1}</td>
-      <td style="font-weight:500">${row.name}</td>
-      <td style="color:var(--pi-purple);font-family:monospace">${row.user || '—'}</td>
-      <td class="pi-amount">${row.valid ? 'π ' + fmt(row.val) : '—'}</td>
-      <td style="color:var(--text-secondary)">${row.memo}</td>
-      <td><span class="pill pill-gray">${row.cat}</span></td>
-      <td><span class="pill ${cls}">${label}</span></td>
-    </tr>`;
-  });
-
-  preview.style.display = 'block';
-  animateProgress(100, `Ready — ${validRows.length} valid, ${parseErrors} with issues`);
-  toast(`CSV processed — ${rows.length} rows read`);
-}
-
-function resetUploadZone() {
-  const zone = document.getElementById('upload-zone');
-  zone.style.borderColor = '';
-  zone.style.background = '';
-  zone.innerHTML = `<i class="ti ti-cloud-upload"></i>
-    <div class="upload-title">Drag a CSV here or click to select</div>
-    <div class="upload-sub">Expected columns: name, pi_username, amount, memo, category</div>`;
-}
-
-function animateProgress(target, label) {
-  let pct = 0;
-  const fill = document.getElementById('prog-fill');
-  const pPct  = document.getElementById('csv-prog-pct');
-  const pLbl  = document.getElementById('csv-prog-label');
-  const iv = setInterval(() => {
-    pct = Math.min(pct + 5, target);
-    fill.style.width = pct + '%';
-    pPct.textContent = pct + '%';
-    if (pct >= target) { clearInterval(iv); pLbl.textContent = label; }
-  }, 40);
-}
-
-function sendCsvBatch() {
-  const valid = state.csvRows.filter(r => r.valid);
-  if (valid.length === 0) { toast('No valid rows to send.'); return; }
-  if (PiWalletManager._isPiBrowser && PiWalletManager.isConnected()) {
-    const queueItems = valid.map(function(r) {
-      var display = r.name || (r.user.startsWith('@') ? r.user.slice(1).replace(/_/g,' ') : r.user);
-      return { name: r.user, display: display, val: r.val, memo: r.memo, cat: r.cat };
-    });
-    PiWalletManager.processPayroll(queueItems);
+function renderLinks() {
+  const el = document.getElementById('linksList');
+  if (paymentLinks.length === 0) {
+    el.innerHTML = '<div class="empty-state"><div class="empty-state-icon">🔗</div><div class="empty-state-title">No payment links</div><div class="empty-state-sub">Create one above to start receiving Pi</div></div>';
     return;
   }
-  if (!PiWalletManager._isPiBrowser) {
-    toast('Pi Browser required for Pi Wallet payments. Sending as offline records...', 3500);
-  }
-  let i = 0;
-  animateProgress(0, 'Sending…');
-  const iv = setInterval(() => {
-    if (i >= valid.length) {
-      clearInterval(iv);
-      animateProgress(100, `✓ ${valid.length} payment${valid.length > 1 ? 's' : ''} sent`);
-      renderHistory();
-      updateReports();
-      updateWalletPanel();
-      toast(`✓ Batch sent — ${valid.length} recipients`);
-      return;
-    }
-    const r = valid[i];
-    const display = r.name || (r.user.startsWith('@') ? r.user.slice(1).replace(/_/g,' ') : r.user);
-    state.history.unshift({
-      dir: 'out', name: r.user, display,
-      hash: randomHash(), val: r.val, piPaymentId: null, txHash: null,
-      date: fmtDate(), status: 'confirmed', cat: r.cat, memo: r.memo,
-      username: r.user, authTime: new Date().toISOString(),
-    });
-    i++;
-  }, 300);
-}
-
-function downloadTemplate() {
-  const csv = 'name,pi_username,amount,memo,category\nJohn Smith,@john_smith,350.00,July 2025 salary,Salary\nJane Doe,@jane_doe,280.00,Freelance design,Freelance';
-  const blob = new Blob([csv], { type: 'text/csv' });
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = 'pi-payroll-template.csv';
-  a.click();
-  toast('Template downloaded.');
-}
-
-// ── RECURRING ──────────────────────────────────────────────
-function renderRecurring() {
-  const el = document.getElementById('recurring-list');
-  if (state.recurring.length === 0) {
-    el.innerHTML = `<div class="empty-state"><i class="ti ti-repeat"></i><div class="empty-state-title">No recurring payments</div><div class="empty-state-sub">Create a schedule above to automate payroll</div></div>`;
-    return;
-  }
-  el.innerHTML = '';
-  state.recurring.forEach(r => {
-    const initials = r.display.split(' ').map(w => w[0] || '').join('').slice(0, 2).toUpperCase() || '??';
-    el.innerHTML += `<div class="recurring-card">
-      <div class="row-gap">
-        <div class="user-av" style="background:var(--pi-purple);color:#fff;font-size:11px;font-weight:700;width:34px;height:34px;flex-shrink:0">${initials}</div>
-        <div>
-          <div style="font-size:13px;font-weight:500;color:var(--text-primary)">${r.name}</div>
-          <div style="font-size:11px;color:var(--text-secondary)">${r.freq} · ${r.memo} · next: ${r.next}</div>
-        </div>
+  el.innerHTML = paymentLinks.map(l => `<div class="link-card">
+    <div class="link-url">${l.url}</div>
+    <div class="link-row">
+      <span>π ${l.amount.toFixed(2)} · ${l.memo}${l.recipient?' · to: '+l.recipient:''}</span>
+      <div class="link-actions">
+        <button class="btn btn-sm" onclick="navigator.clipboard.writeText('${l.url}').then(()=>showToast('Copied!','Link copied to clipboard'))">📋 Copy</button>
+        <button class="btn btn-sm btn-danger" onclick="paymentLinks=paymentLinks.filter(x=>x.id!=='${l.id}');renderLinks()">✕</button>
       </div>
-      <div class="row-gap">
-        <span class="pi-amount" style="font-size:13px;color:var(--pi-purple)">π ${fmt(r.val)}</span>
-        <button class="toggle ${r.on ? 'on' : ''}" onclick="toggleRecurring(${r.id})" aria-label="Toggle schedule"></button>
+    </div>
+  </div>`).join('');
+}
+
+/* ─── INVOICES ───────────────────────────────────────── */
+function createInvoice() {
+  const client = document.getElementById('i-client').value.trim();
+  const amt = parseFloat(document.getElementById('i-amount').value);
+  const desc = document.getElementById('i-desc').value.trim();
+  const due = document.getElementById('i-due').value;
+  if (!client || !amt || amt <= 0) { showToast('Invalid', 'Enter client and amount.', true); return; }
+  invoices.unshift({
+    id: 'INV-' + Date.now().toString(36).toUpperCase(), client, amount: amt, description: desc || 'Services',
+    due: due || 'N/A', status: 'pending', created: new Date().toISOString()
+  });
+  document.getElementById('i-client').value = '';
+  document.getElementById('i-amount').value = '100.00';
+  document.getElementById('i-desc').value = '';
+  document.getElementById('i-due').value = '';
+  renderInvoices();
+  showToast('Invoice Created', `INV for ${amt} π sent to ${client}.`);
+}
+
+function renderInvoices() {
+  const el = document.getElementById('invoicesList');
+  if (invoices.length === 0) {
+    el.innerHTML = '<div class="empty-state"><div class="empty-state-icon">🧾</div><div class="empty-state-title">No invoices</div><div class="empty-state-sub">Create your first invoice above</div></div>';
+    return;
+  }
+  el.innerHTML = invoices.map(inv => `<div class="invoice-card">
+    <div class="invoice-left">
+      <div class="invoice-icon ${inv.status}">${inv.status==='paid'?'✅':'📝'}</div>
+      <div class="invoice-info">
+        <div class="invoice-name">${inv.id} · ${inv.client}</div>
+        <div class="invoice-meta">${inv.description} · Due: ${inv.due}</div>
+      </div>
+    </div>
+    <div class="invoice-right">
+      <div class="invoice-amount">π ${inv.amount.toFixed(2)}</div>
+      <span class="pill ${inv.status==='paid'?'pill-success':'pill-warning'}">${inv.status}</span>
+    </div>
+  </div>`).join('');
+}
+
+/* ─── SCHEDULE ────────────────────────────────────────── */
+function addSchedule() {
+  const r = document.getElementById('sc-recipient').value.trim();
+  const a = parseFloat(document.getElementById('sc-amount').value);
+  const f = document.getElementById('sc-freq').value;
+  const d = document.getElementById('sc-date').value;
+  const m = document.getElementById('sc-memo').value.trim() || '—';
+  const c = document.getElementById('sc-category').value;
+  if (!r || !a || a <= 0) { showToast('Invalid', 'Enter recipient and amount.', true); return; }
+  scheduledPayments.push({ id: Date.now(), recipient: r, amount: a, frequency: f, next: d || 'TBD', memo: m, category: c, active: true });
+  document.getElementById('sc-recipient').value = '';
+  document.getElementById('sc-amount').value = '';
+  document.getElementById('sc-date').value = '';
+  document.getElementById('sc-memo').value = '';
+  renderSchedule();
+  showToast('Scheduled', `${r} · ${a} π ${f.toLowerCase()}.`);
+}
+
+function renderSchedule() {
+  const el = document.getElementById('scheduleList');
+  if (scheduledPayments.length === 0) {
+    el.innerHTML = '<div class="empty-state"><div class="empty-state-icon">🗓</div><div class="empty-state-title">No scheduled payments</div><div class="empty-state-sub">Automate recurring Pi payments</div></div>';
+    return;
+  }
+  el.innerHTML = scheduledPayments.map(s => {
+    const init = s.recipient.replace('@','').slice(0,2).toUpperCase();
+    return `<div class="schedule-card">
+      <div class="schedule-left">
+        <div class="schedule-av">${init}</div>
+        <div><div class="schedule-name">${s.recipient}</div><div class="schedule-info">${s.frequency} · ${s.memo} · next: ${s.next}</div></div>
+      </div>
+      <div class="schedule-right">
+        <span class="schedule-amount">π ${s.amount.toFixed(2)}</span>
+        <button class="toggle ${s.active?'on':''}" onclick="s.active=!s.active;renderSchedule()"></button>
       </div>
     </div>`;
+  }).join('');
+}
+
+/* ─── HISTORY ────────────────────────────────────────── */
+function recordPayment(dir, recipient, amount, memo, status, txid, pid) {
+  paymentHistory.unshift({
+    dir, recipient, display: recipient.startsWith('@') ? recipient.slice(1).replace(/_/g,' ') : recipient,
+    amount, memo, status, txid: txid || null, piPaymentId: pid || null,
+    date: new Date().toLocaleString('en-US', { month:'short', day:'numeric', hour:'2-digit', minute:'2-digit' })
   });
+  saveState();
+  updateAllUI();
+  renderHistory();
 }
 
-function toggleRecurring(id) {
-  const r = state.recurring.find(x => x.id === id);
-  if (r) {
-    r.on = !r.on;
-    renderRecurring();
-    updateDashboard();
-    toast(r.on ? `✓ ${r.name} enabled` : `${r.name} paused`);
-  }
-}
-
-function addRecurring() {
-  const name = document.getElementById('rec-recipient').value.trim();
-  const val  = parseFloat(document.getElementById('rec-amount').value);
-  const freq = document.getElementById('rec-freq').value;
-  const date = document.getElementById('rec-date').value;
-  const memo = document.getElementById('rec-memo').value.trim();
-  const cat  = document.getElementById('rec-category').value;
-  if (!name || !val || val <= 0) { toast('Enter a recipient and amount.'); return; }
-  const display = name.startsWith('@')
-    ? name.slice(1).replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase())
-    : name;
-  const next = date ? new Date(date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : 'TBD';
-  state.recurring.push({ id: Date.now(), name, display, val, freq, next, memo: memo || '—', cat, on: true });
-  renderRecurring();
-  updateDashboard();
-  document.getElementById('rec-recipient').value = '';
-  document.getElementById('rec-amount').value = '';
-  document.getElementById('rec-date').value = '';
-  document.getElementById('rec-memo').value = '';
-  toast(`✓ Schedule created — ${name} · π ${fmt(val)} ${freq.toLowerCase()}`);
-}
-
-renderRecurring();
-
-// ── HISTORY ────────────────────────────────────────────────
-function renderHistory(filter = '', statusFilter = '') {
-  const el = document.getElementById('history-list');
-  let items = state.history;
-  if (filter) {
-    const q = filter.toLowerCase();
-    items = items.filter(t =>
-      t.name.toLowerCase().includes(q) ||
-      t.display.toLowerCase().includes(q) ||
-      t.hash.toLowerCase().includes(q) ||
-      (t.piPaymentId && t.piPaymentId.toLowerCase().includes(q)) ||
-      (t.txHash && t.txHash.toLowerCase().includes(q)) ||
-      t.val.toString().includes(q)
-    );
-  }
-  if (statusFilter) items = items.filter(t => t.status === statusFilter);
+function renderHistory() {
+  const el = document.getElementById('historyList');
+  const q = (document.getElementById('histSearch')?.value || '').toLowerCase();
+  const s = document.getElementById('histFilter')?.value || '';
+  let items = paymentHistory;
+  if (q) items = items.filter(t => t.recipient.toLowerCase().includes(q) || t.memo.toLowerCase().includes(q) || (t.txid||'').toLowerCase().includes(q));
+  if (s) items = items.filter(t => t.status === s);
   if (items.length === 0) {
-    el.innerHTML = state.history.length === 0
-      ? `<div class="empty-state"><i class="ti ti-history"></i><div class="empty-state-title">No transactions yet</div><div class="empty-state-sub">Sent payments will appear here with their on-chain hashes</div></div>`
-      : `<div style="text-align:center;color:var(--text-muted);padding:32px">No transactions match your filter.</div>`;
+    el.innerHTML = '<div class="empty-state"><div class="empty-state-icon">📊</div><div class="empty-state-title">No transactions</div><div class="empty-state-sub">Send payments to see them here</div></div>';
     return;
   }
-  el.innerHTML = '';
-  items.forEach(t => {
-    var sc;
-    switch (t.status) {
-      case 'completed': case 'confirmed': sc = 'pill-success'; break;
-      case 'pending': case 'approved': sc = 'pill-warning'; break;
-      case 'cancelled': sc = 'pill-gray'; break;
-      case 'failed': sc = 'pill-danger'; break;
-      default: sc = 'pill-gray';
-    }
-    var hashDisplay = t.txHash || t.piPaymentId || t.hash;
-    var hashLabel = t.txHash ? ('TX: ' + t.txHash) : (t.piPaymentId ? ('Pi ID: ' + t.piPaymentId) : t.hash);
-    var memoStr = t.memo && t.memo !== '—' ? t.memo : '';
-    el.innerHTML += `<div class="history-tx">
-      <div class="tx-icon ${t.dir}"><i class="ti ti-arrow-${t.dir==='out'?'up-right':'down-left'}"></i></div>
+  el.innerHTML = items.map(t => {
+    const sc = t.status==='completed'?'pill-success':t.status==='pending'?'pill-warning':t.status==='cancelled'?'pill-gray':'pill-danger';
+    const hashStr = t.txid || t.piPaymentId || 'demo';
+    return `<div class="history-tx">
+      <div class="tx-icon-s ${t.dir==='out'?'tx-icon-out':'tx-icon-in'}">${t.dir==='out'?'↑':'↓'}</div>
       <div class="tx-info">
         <div class="tx-name">${t.display}</div>
-        <div class="tx-hash" title="${hashLabel}">${hashLabel}</div>
-        ${memoStr ? '<div style="font-size:10px;color:var(--text-muted);margin-top:1px">' + memoStr + '</div>' : ''}
+        <div class="tx-hash">${hashStr}</div>
+        ${t.memo ? `<div style="font-size:10px;color:var(--text-muted);margin-top:1px">${t.memo}</div>` : ''}
       </div>
-      <div class="row-gap">
-        <span class="pill pill-gray">${t.cat}</span>
-        <span class="pill ${sc}">${t.status}</span>
-        <div class="tx-right">
-          <div class="tx-amount ${t.dir}">${t.dir==='out'?'-':'+'} π ${fmt(t.val)}</div>
-          <div class="tx-date">${t.date}</div>
-        </div>
-      </div>
+      <div class="row-gap"><span class="pill ${sc}">${t.status}</span><div class="tx-right"><div class="tx-amount ${t.dir}">${t.dir==='out'?'-':'+'} π ${t.amount.toFixed(2)}</div><div class="tx-date">${t.date}</div></div></div>
     </div>`;
-  });
+  }).join('');
 }
 
-function exportHistory() {
-  if (state.history.length === 0) { toast('No transactions to export.'); return; }
-  const header = 'date,type,name,username,pi_payment_id,tx_hash,hash,amount,memo,status,category,pi_username\n';
-  const rows = state.history.map(t =>
-    `"${t.date}",${t.dir},"${t.display}",${t.name},${t.piPaymentId||''},${t.txHash||''},${t.hash},${t.val},"${t.memo||''}",${t.status},${t.cat},${t.username||t.name}`
+function exportHistoryCSV() {
+  if (paymentHistory.length === 0) { showToast('Empty', 'No history to export.', true); return; }
+  const csv = 'date,type,recipient,amount,memo,status,txid\n' + paymentHistory.map(t =>
+    `"${t.date}",${t.dir},"${t.recipient}",${t.amount},"${t.memo}",${t.status},${t.txid||''}`
   ).join('\n');
-  const blob = new Blob([header + rows], { type: 'text/csv' });
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = 'pi-payroll-history.csv';
-  a.click();
-  toast('History exported.');
+  const b = new Blob([csv], { type: 'text/csv' });
+  const a = document.createElement('a'); a.href = URL.createObjectURL(b); a.download = 'pioneerpix-history.csv'; a.click();
 }
 
-renderHistory();
+/* ─── NAV ────────────────────────────────────────────── */
+const PAGE_TITLES = { send:'Send Pi', batch:'Batch Payments', queue:'Payment Queue', links:'Payment Links', invoices:'Invoices', balance:'Unified Balance', schedule:'Payment Schedule', history:'Transaction History', settings:'Settings' };
 
-// ── REPORTS ────────────────────────────────────────────────
-function updateReports() {
-  const outgoing = state.history.filter(t => t.dir === 'out');
-  const total = outgoing.reduce((s, t) => s + t.val, 0);
-  const completed = outgoing.filter(t => t.status === 'completed' || t.status === 'confirmed').length;
-  const rate = outgoing.length > 0 ? Math.round((completed / outgoing.length) * 100) : null;
-  const uniq = new Set(outgoing.map(t => t.name)).size;
+function navTo(page, btn) {
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.querySelectorAll('.page-panel').forEach(p => p.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  document.getElementById('pageTitle').textContent = PAGE_TITLES[page] || page;
+  const panel = document.getElementById('panel-' + page);
+  if (panel) panel.classList.add('active');
+  if (page === 'balance') updateBalancePanel();
+  if (page === 'history') renderHistory();
+  if (window.innerWidth < 600) document.getElementById('sidebar').classList.add('collapsed');
+}
 
-  // top recipient
-  const byUser = {};
-  outgoing.forEach(t => { byUser[t.name] = (byUser[t.name] || { val: 0, display: t.display }); byUser[t.name].val += t.val; });
-  const topEntry = Object.entries(byUser).sort((a, b) => b[1].val - a[1].val)[0];
+function toggleSidebar() {
+  var sb = document.getElementById('sidebar');
+  var bd = document.getElementById('sidebarBackdrop');
+  sb.classList.toggle('collapsed');
+  if (bd) bd.style.display = sb.classList.contains('collapsed') ? 'none' : 'block';
+}
 
-  // total payroll cycles (unique dates with outgoing payments)
-  const cycles = new Set(outgoing.map(function(t) {
-    var d = t.date || '';
-    return d.split(' · ')[0] || d;
-  })).size;
-  const avgAmount = outgoing.length > 0 ? total / outgoing.length : 0;
-  const totalCompleted = outgoing.filter(function(t) { return t.status === 'completed'; }).length;
+function closeSidebar() {
+  var sb = document.getElementById('sidebar');
+  var bd = document.getElementById('sidebarBackdrop');
+  sb.classList.add('collapsed');
+  if (bd) bd.style.display = 'none';
+}
 
-  document.getElementById('rep-total').innerHTML = '<span class="pi-sym">π</span> ' + fmt(total);
-  document.getElementById('rep-top').textContent = topEntry ? topEntry[1].display : '—';
-  document.getElementById('rep-top-sub').textContent = topEntry ? 'π ' + fmt(topEntry[1].val) + ' received' : 'No data yet';
-  document.getElementById('rep-rate').textContent = rate !== null ? rate + '%' : '—';
-  document.getElementById('rep-rate-sub').textContent = rate !== null ? completed + ' of ' + outgoing.length + ' completed' : 'No transactions yet';
-  document.getElementById('rep-uniq').textContent = uniq;
+/* ─── BALANCE ─────────────────────────────────────────── */
+function updateBalancePanel() {
+  const sent = paymentHistory.filter(t => t.dir==='out' && t.status==='completed').reduce((s,t)=>s+t.amount,0);
+  const recv = paymentHistory.filter(t => t.dir==='in' && t.status==='completed').reduce((s,t)=>s+t.amount,0);
+  const completed = paymentHistory.filter(t => t.status==='completed').length;
+  const activeSched = scheduledPayments.filter(s => s.active).length;
+  const pendingInv = invoices.filter(inv => inv.status==='pending').length;
+  document.getElementById('bal-amount').textContent = piBalance.toFixed(2) + ' π';
+  document.getElementById('bal-status').textContent = piUser ? 'Connected' : 'Not connected';
+  document.getElementById('bal-sent').textContent = sent.toFixed(2) + ' π';
+  document.getElementById('bal-sent-sub').textContent = completed + ' transactions';
+  document.getElementById('bal-recv').textContent = recv.toFixed(2) + ' π';
+  document.getElementById('bal-recv-sub').textContent = paymentHistory.filter(t=>t.dir==='in').length + ' transactions';
+  document.getElementById('bal-sched').textContent = activeSched;
+  document.getElementById('bal-inv').textContent = pendingInv;
+  document.getElementById('bal-net-status').textContent = sdkReady ? (isSandbox ? 'Sandbox · SDK Ready' : 'Mainnet · SDK Ready') : 'SDK initializing…';
+}
 
-  var rl = document.getElementById('report-list');
-  if (state.history.length === 0) {
-    rl.innerHTML = '<div class="empty-state"><i class="ti ti-file-description"></i><div class="empty-state-title">No reports yet</div><div class="empty-state-sub">Reports are generated automatically after each payment cycle</div></div>';
-    return;
-  }
-  rl.innerHTML = '';
-  var now = new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
-  var reportItems = [
-    { name: 'Payroll Report — ' + now, meta: outgoing.length + ' recipient' + (outgoing.length !== 1 ? 's' : '') + ' · π ' + fmt(total), icon: 'ti-file-description' },
-    { name: 'On-Chain Statement', meta: state.history.length + ' total transaction' + (state.history.length !== 1 ? 's' : '') + ' · all time', icon: 'ti-report-analytics' },
-    { name: 'Payroll Summary', meta: cycles + ' payroll cycle' + (cycles !== 1 ? 's' : '') + ' · avg π ' + fmt(avgAmount) + ' · ' + uniq + ' employee' + (uniq !== 1 ? 's' : '') + ' paid', icon: 'ti-file-text' },
-    { name: 'Category Breakdown', meta: Object.keys(byUser).length > 0 ? 'Categories from ' + outgoing.length + ' payments' : 'No categories yet', icon: 'ti-chart-pie' },
-    { name: 'Full History Export', meta: state.history.length + ' rows · CSV format', icon: 'ti-file-spreadsheet' },
-    { name: 'Completed Transactions', meta: totalCompleted + ' completed of ' + outgoing.length + ' · ' + (rate || 0) + '% success rate', icon: 'ti-check' },
+/* ─── SETTINGS ────────────────────────────────────────── */
+function toggleSandboxSetting() {
+  isSandbox = !isSandbox;
+  document.getElementById('sandboxToggle').classList.toggle('on');
+  document.getElementById('netDot').className = 'dot ' + (isSandbox ? 'dot-amber' : 'dot-green');
+  document.getElementById('netName').textContent = isSandbox ? 'Sandbox (Testnet)' : 'Pi Mainnet';
+  document.getElementById('netTag').textContent = isSandbox ? 'Sandbox' : 'Mainnet';
+  if (!isSandbox) { showToast('Mainnet', 'Switch back to sandbox for testing.'); }
+}
+function toggleSandbox() { toggleSandboxSetting(); }
+
+/* ─── UPDATE ALL ──────────────────────────────────────── */
+function updateAllUI() {
+  document.getElementById('sendBtnText').textContent = piUser ? 'Send Pi Payment' : 'Connect Wallet to Pay';
+  document.getElementById('walletBal').textContent = piBalance.toFixed(2);
+  document.getElementById('s-balance').textContent = piBalance.toFixed(2) + ' π';
+  document.getElementById('s-status').textContent = piUser ? 'Connected' : 'Not connected';
+  document.getElementById('s-status').className = piUser ? 'pill pill-success' : 'pill pill-warning';
+  document.getElementById('s-user').textContent = piUser ? '@' + piUser.username : '—';
+  updateSendSummary();
+  updateBalancePanel();
+}
+
+/* ─── TOAST ───────────────────────────────────────────── */
+let toastTimer;
+function showToast(title, body, isError) {
+  const t = document.getElementById('toast');
+  document.getElementById('toastTitle').textContent = title;
+  document.getElementById('toastBody').textContent = body;
+  t.style.borderColor = isError ? 'var(--red)' : 'var(--border-strong)';
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 3500);
+}
+
+/* ─── HEALTH ──────────────────────────────────────────── */
+async function checkHealth() {
+  const eps = [
+    { id: 'h-main', url: 'https://api.mainnet.minepi.com', label: 'Mainnet' },
+    { id: 'h-test', url: 'https://api.testnet.minepi.com', label: 'Testnet' }
   ];
-  reportItems.forEach(function(r) {
-    rl.innerHTML += '<div class="report-row">' +
-      '<div class="report-icon"><i class="ti ' + r.icon + '"></i></div>' +
-      '<div style="flex:1"><div class="report-name">' + r.name + '</div><div class="report-meta">' + r.meta + '</div></div>' +
-      '<button class="btn btn-sm" onclick="exportHistory()"><i class="ti ti-download"></i>Download</button>' +
-    '</div>';
-  });
+  for (const ep of eps) {
+    try {
+      await fetch(ep.url, { method: 'HEAD', mode: 'no-cors', signal: AbortSignal.timeout(4000) });
+      document.getElementById(ep.id).textContent = 'Healthy';
+      document.getElementById(ep.id).className = 'pill pill-success';
+    } catch(e) {
+      document.getElementById(ep.id).textContent = 'Unreachable';
+      document.getElementById(ep.id).className = 'pill pill-danger';
+    }
+  }
 }
 
-updateReports();
-updateDashboard();
+/* ─── BOOT ────────────────────────────────────────────── */
+window.addEventListener('DOMContentLoaded', () => {
+  initSDK();
+  checkHealth();
+  updateAllUI();
+  renderQueue();
+  renderHistory();
+  renderLinks();
+  renderInvoices();
+  renderSchedule();
+  renderBatch();
+  if (typeof window.Pi === 'undefined') {
+    document.getElementById('netDot').className = 'dot dot-amber';
+  }
+  if (window.innerWidth < 600) {
+    document.getElementById('sidebar').classList.add('collapsed');
+  }
+  window.addEventListener('resize', function() {
+    if (window.innerWidth >= 600) {
+      document.getElementById('sidebar').classList.remove('collapsed');
+      var bd = document.getElementById('sidebarBackdrop');
+      if (bd) bd.style.display = 'none';
+    }
+  });
+});
 </script>
 </body>
 </html>
