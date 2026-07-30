@@ -339,8 +339,8 @@ tbody tr:hover td { background: var(--bg-card2); }
     <button class="sidebar-toggle" id="sidebarToggle" onclick="toggleSidebar()" title="Toggle menu">☰</button>
     <div class="topbar-right">
       <div class="network-pill" id="networkPill" onclick="toggleSandbox()">
-        <div class="dot dot-purple" id="netDot"></div>
-        <span id="netName">Sandbox (Testnet)</span>
+        <div class="dot dot-green" id="netDot"></div>
+        <span id="netName">Pi Mainnet</span>
       </div>
       <div class="network-pill" id="userPill" style="cursor:pointer" onclick="connectPi()">
         <div class="dot" id="connDot" style="background:#5e5478"></div>
@@ -551,7 +551,7 @@ tbody tr:hover td { background: var(--bg-card2); }
         <div class="card-title">Application</div>
         <div class="settings-row">
           <div><div class="settings-label">Sandbox Mode</div><div class="settings-desc">Use Pi Testnet for development. Disable for Mainnet.</div></div>
-          <button class="toggle on" id="sandboxToggle" onclick="toggleSandboxSetting()"></button>
+          <button class="toggle" id="sandboxToggle" onclick="toggleSandboxSetting()"></button>
         </div>
         <div class="settings-row">
           <div><div class="settings-label">Auto-Connect Wallet</div><div class="settings-desc">Automatically authenticate on app load inside Pi Browser.</div></div>
@@ -590,7 +590,7 @@ tbody tr:hover td { background: var(--bg-card2); }
 <script>
 /* ─── STATE ─────────────────────────────────────────── */
 let piUser = null, piAccessToken = null, piBalance = 0;
-let isSandbox = true, sdkReady = false;
+let isSandbox = false, sdkReady = false;
 let batchPayments = [], scheduledPayments = [], invoices = [], paymentLinks = [];
 let paymentHistory = JSON.parse(localStorage.getItem('pp_history') || '[]');
 let paymentQueue = JSON.parse(localStorage.getItem('pp_queue') || '[]');
@@ -601,25 +601,40 @@ function saveState() {
 }
 
 /* ─── INIT ──────────────────────────────────────────── */
+function isPiBrowser() {
+  try {
+    return /PiBrowser/i.test(navigator.userAgent || '') || (typeof Pi !== 'undefined' && Pi.init);
+  } catch(e) { return false; }
+}
+
 async function initSDK() {
   try {
     if (typeof window.Pi === 'undefined') { updateAllUI(); return; }
+    if (isPiBrowser()) { isSandbox = false; }
     await window.Pi.init({ version: '2.0', sandbox: isSandbox });
     sdkReady = true;
+    document.getElementById('netDot').className = 'dot ' + (isSandbox ? 'dot-amber' : 'dot-green');
+    document.getElementById('netName').textContent = isSandbox ? 'Sandbox (Testnet)' : 'Pi Mainnet';
+    document.getElementById('netTag').textContent = isSandbox ? 'Sandbox' : 'Mainnet';
+    document.getElementById('sandboxToggle').classList.toggle('on', isSandbox);
     updateAllUI();
   } catch(e) { console.log('SDK init:', e); updateAllUI(); }
 }
 
 /* ─── CONNECT ────────────────────────────────────────── */
 async function connectPi() {
-  if (!sdkReady && typeof window.Pi === 'undefined') {
-    showToast('Pi Browser Required', 'Open this app in the Pi Browser to authenticate.', true); return;
+  if (!isPiBrowser() || typeof window.Pi === 'undefined') {
+    showToast('Pi Browser Required', 'Open this app in the Pi Browser to connect your wallet.', true); return;
+  }
+  if (!sdkReady) {
+    try { await window.Pi.init({ version: '2.0', sandbox: false }); sdkReady = true; }
+    catch(e) { showToast('SDK Error', 'Failed to initialize Pi SDK.', true); return; }
   }
   try {
     const auth = await window.Pi.authenticate(['payments', 'username', 'wallet_address'], onIncompletePaymentFound);
     piUser = auth.user; piAccessToken = auth.accessToken;
     onAuthSuccess();
-  } catch(e) { showToast('Auth Failed', e.message || 'Could not authenticate.', true); }
+  } catch(e) { showToast('Auth Failed', e.message || 'Could not authenticate with Pi.', true); }
 }
 
 function onIncompletePaymentFound(payment) {
@@ -1146,8 +1161,9 @@ window.addEventListener('DOMContentLoaded', () => {
   renderInvoices();
   renderSchedule();
   renderBatch();
-  if (typeof window.Pi === 'undefined') {
+  if (!isPiBrowser() || typeof window.Pi === 'undefined') {
     document.getElementById('netDot').className = 'dot dot-amber';
+    document.getElementById('netName').textContent = 'Pi Browser Required';
   }
   if (window.innerWidth < 600) {
     document.getElementById('sidebar').classList.add('collapsed');
