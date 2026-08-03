@@ -180,17 +180,150 @@ tbody tr:hover td { background: var(--bg-card2); }
 .invoice-icon { width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
 .invoice-icon.pending { background: rgba(245,158,11,.15); color: var(--amber); }
 .invoice-icon.paid { background: var(--green-dim); color: var(--green); }
+.invoice-icon.overdue { background: rgba(248,113,113,.15); color: var(--red); }
 .invoice-info { min-width: 0; }
 .invoice-name { font-size: 13px; font-weight: 500; color: var(--text-primary); }
 .invoice-meta { font-size: 11px; color: var(--text-muted); margin-top: 3px; }
 .invoice-right { text-align: right; flex-shrink: 0; }
 .invoice-amount { font-size: 14px; font-weight: 600; color: var(--text-primary); }
 
+/* INVOICE STATS */
+.invoice-stats-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 10px; margin-bottom: 14px; }
+.invoice-stat-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; display: flex; align-items: flex-start; gap: 10px; }
+.invoice-stat-icon { font-size: 20px; flex-shrink: 0; margin-top: 1px; }
+.invoice-stat-label { font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: .06em; font-weight: 600; margin-bottom: 4px; }
+.invoice-stat-value { font-size: 22px; font-weight: 700; color: var(--text-primary); }
+.invoice-stat-sub { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+
+/* INVOICE CREATE GRID */
+.invoice-create-grid { display: grid; grid-template-columns: 1fr 320px; gap: 14px; align-items: start; }
+.invoice-form-inner { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.invoice-form-full { grid-column: 1 / -1; }
+
+/* INVOICE PREVIEW */
+.invoice-preview-card { background: var(--bg-card2); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px 20px; text-align: center; min-height: 300px; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+.invoice-preview-icon { font-size: 36px; margin-bottom: 12px; opacity: .85; }
+.invoice-preview-label { font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: .06em; font-weight: 600; margin-bottom: 10px; }
+.invoice-preview-amount { font-size: 26px; font-weight: 700; color: var(--text-primary); letter-spacing: -.5px; }
+.invoice-preview-pi { font-size: 15px; color: var(--pi-gold); font-weight: 600; }
+.invoice-preview-field { font-size: 13px; color: var(--text-secondary); margin-top: 6px; max-width: 100%; word-break: break-word; }
+.invoice-preview-field-label { font-size: 10px; color: var(--text-muted); text-transform: uppercase; letter-spacing: .05em; margin-bottom: 2px; }
+.invoice-preview-placeholder { color: var(--text-muted); font-size: 12px; margin-top: 8px; }
+
+/* INVOICE SECTION HEADER */
+.invoice-section-header { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; margin-bottom: 12px; }
+.invoice-section-name { font-size: 12px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--text-muted); display: flex; align-items: center; gap: 6px; }
+.invoice-section-count { font-size: 11px; color: var(--text-muted); font-weight: 400; }
+
+/* INVOICE TABS */
+.invoice-tabs { display: flex; gap: 2px; background: var(--bg-card2); border-radius: 8px; padding: 3px; }
+.invoice-tab { padding: 6px 14px; border-radius: 6px; font-size: 12px; font-weight: 500; cursor: pointer; color: var(--text-secondary); border: none; background: none; font-family: inherit; transition: all .15s; white-space: nowrap; }
+.invoice-tab:hover { color: var(--text-primary); }
+.invoice-tab.active { background: var(--pi-purple-dim); color: var(--pi-purple-light); }
+.invoice-search-row { display: flex; align-items: center; gap: 8px; }
+.invoice-search { width: 200px; padding: 7px 12px; border: 1px solid var(--border-strong); border-radius: 8px; font-size: 12px; background: var(--bg-card2); color: var(--text-primary); font-family: inherit; outline: none; transition: border-color .15s; }
+.invoice-search:focus { border-color: var(--pi-purple); }
+.invoice-search::placeholder { color: var(--text-muted); }
+
+/* INVOICE TABLE */
+.invoice-table { border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+.invoice-table-row { display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-bottom: 1px solid var(--border); transition: background .15s; }
+.invoice-table-row:last-child { border-bottom: none; }
+.invoice-table-row:hover { background: var(--bg-card2); }
+.invoice-table-col { flex-shrink: 0; }
+.invoice-table-col-id { width: 110px; font-family: monospace; font-size: 11px; color: var(--pi-purple-light); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.invoice-table-col-client { width: 130px; font-size: 13px; font-weight: 500; color: var(--text-primary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.invoice-table-col-amount { width: 85px; font-size: 13px; font-weight: 600; color: var(--pi-gold); text-align: right; }
+.invoice-table-col-memo { flex: 1; min-width: 0; font-size: 12px; color: var(--text-secondary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.invoice-table-col-due { width: 100px; font-size: 11px; color: var(--text-muted); white-space: nowrap; }
+.invoice-table-col-created { width: 105px; font-size: 11px; color: var(--text-muted); white-space: nowrap; }
+.invoice-table-col-status { width: 85px; }
+.invoice-table-col-actions { width: 160px; display: flex; gap: 5px; justify-content: flex-end; }
+
+/* INVOICE BENEFITS */
+.invoice-benefits { display: grid; grid-template-columns: repeat(4,1fr); gap: 10px; margin-top: 14px; }
+.invoice-benefit-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px 16px; display: flex; align-items: flex-start; gap: 10px; }
+.invoice-benefit-icon { font-size: 20px; flex-shrink: 0; margin-top: 1px; line-height: 1; }
+.invoice-benefit-title { font-size: 13px; font-weight: 600; color: var(--text-primary); margin-bottom: 2px; }
+.invoice-benefit-desc { font-size: 11px; color: var(--text-muted); line-height: 1.4; }
+
+/* INVOICE BTN */
+.btn-pay { padding: 5px 10px; font-size: 11px; background: var(--green-dim); border: 1px solid rgba(52,211,153,.35); border-radius: 6px; color: var(--green); cursor: pointer; transition: all .15s; font-family: inherit; white-space: nowrap; }
+.btn-pay:hover { background: rgba(52,211,153,.2); }
+
 /* LINK CARD */
 .link-card { background: var(--bg-card2); border: 1px solid var(--border); border-radius: 10px; padding: 14px; margin-bottom: 10px; }
 .link-url { font-family: monospace; font-size: 12px; color: var(--pi-purple-light); word-break: break-all; margin-bottom: 8px; }
 .link-row { display: flex; align-items: center; justify-content: space-between; font-size: 12px; color: var(--text-secondary); }
 .link-actions { display: flex; gap: 6px; }
+
+/* LINK FEATURE STRIP */
+.feature-strip { display: grid; grid-template-columns: repeat(4,1fr); gap: 10px; margin-bottom: 16px; }
+.feature-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px 16px; display: flex; align-items: flex-start; gap: 10px; cursor: default; }
+.feature-card-icon { font-size: 22px; flex-shrink: 0; margin-top: 1px; line-height: 1; }
+.feature-card-info { min-width: 0; }
+.feature-card-title { font-size: 13px; font-weight: 600; color: var(--text-primary); margin-bottom: 2px; }
+.feature-card-desc { font-size: 11px; color: var(--text-muted); line-height: 1.4; }
+
+/* LINK CREATE GRID */
+.links-create-grid { display: grid; grid-template-columns: 1fr 340px; gap: 14px; align-items: start; }
+.links-preview-card { background: var(--bg-card2); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px 20px; text-align: center; min-height: 320px; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+.links-preview-icon { font-size: 36px; margin-bottom: 14px; opacity: .85; }
+.links-preview-label { font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: .06em; font-weight: 600; margin-bottom: 10px; }
+.links-preview-amount { font-size: 28px; font-weight: 700; color: var(--text-primary); letter-spacing: -.5px; }
+.links-preview-pi { font-size: 16px; color: var(--pi-gold); font-weight: 600; }
+.links-preview-memo { font-size: 13px; color: var(--text-secondary); margin-top: 8px; max-width: 100%; word-break: break-word; }
+.links-preview-recipient { font-size: 12px; color: var(--text-muted); margin-top: 4px; }
+.links-preview-url { font-size: 11px; font-family: monospace; color: var(--pi-purple-light); margin-top: 14px; word-break: break-all; background: var(--bg-card3); padding: 8px 12px; border-radius: 6px; max-width: 100%; line-height: 1.5; }
+.links-preview-actions { display: flex; gap: 6px; margin-top: 14px; }
+.links-preview-placeholder { color: var(--text-muted); font-size: 12px; }
+
+/* LINK AMOUNT INPUT */
+.links-amount-wrap { position: relative; display: flex; align-items: center; background: var(--bg-card2); border: 1px solid var(--border-strong); border-radius: 9px; padding: 0 14px; transition: border-color .15s; }
+.links-amount-wrap:focus-within { border-color: var(--pi-purple); }
+.links-amount-sym { font-size: 30px; font-weight: 700; color: var(--pi-gold); margin-right: 2px; flex-shrink: 0; line-height: 1; }
+.links-amount-field { flex: 1; background: none; border: none; outline: none; font-size: 28px; font-weight: 700; color: var(--text-primary); font-family: inherit; padding: 14px 0; width: 100%; min-width: 0; }
+.links-amount-field::placeholder { color: var(--text-muted); }
+.links-amount-field::-webkit-outer-spin-button,
+.links-amount-field::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+.links-amount-field[type=number] { -moz-appearance: textfield; }
+
+/* LINK PRESETS */
+.links-presets { display: grid; grid-template-columns: repeat(5,1fr); gap: 6px; margin-top: 10px; }
+.links-preset-btn { background: var(--bg-card2); border: 1px solid var(--border); border-radius: 7px; padding: 8px 4px; text-align: center; cursor: pointer; font-size: 12px; font-weight: 600; color: var(--text-secondary); transition: all .15s; font-family: inherit; }
+.links-preset-btn:hover { background: var(--pi-purple-dim); color: var(--text-primary); border-color: var(--pi-purple); }
+.links-preset-btn.active { background: var(--pi-purple-dim); color: var(--pi-purple-light); border-color: var(--pi-purple); }
+
+/* LINKS SECTION HEADER */
+.links-section-header { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; margin-bottom: 12px; }
+.links-section-name { font-size: 12px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--text-muted); display: flex; align-items: center; gap: 6px; }
+.links-section-count { font-size: 11px; color: var(--text-muted); font-weight: 400; }
+.links-search { width: 210px; padding: 7px 12px; border: 1px solid var(--border-strong); border-radius: 8px; font-size: 12px; background: var(--bg-card2); color: var(--text-primary); font-family: inherit; outline: none; transition: border-color .15s; }
+.links-search:focus { border-color: var(--pi-purple); }
+.links-search::placeholder { color: var(--text-muted); }
+
+/* LINKS TABLE */
+.links-table { border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+.links-table-row { display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-bottom: 1px solid var(--border); transition: background .15s; }
+.links-table-row:last-child { border-bottom: none; }
+.links-table-row:hover { background: var(--bg-card2); }
+.links-table-col { flex-shrink: 0; }
+.links-table-col-url { flex: 1; min-width: 0; font-family: monospace; font-size: 11px; color: var(--pi-purple-light); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.links-table-col-amount { width: 85px; font-size: 13px; font-weight: 600; color: var(--pi-gold); text-align: right; }
+.links-table-col-memo { width: 170px; font-size: 12px; color: var(--text-secondary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.links-table-col-date { width: 125px; font-size: 11px; color: var(--text-muted); white-space: nowrap; }
+.links-table-col-actions { width: 140px; display: flex; gap: 5px; justify-content: flex-end; }
+
+/* LINK COPY BTN */
+.btn-copy { padding: 5px 10px; font-size: 11px; background: var(--bg-card3); border: 1px solid var(--border-strong); border-radius: 6px; color: var(--text-secondary); cursor: pointer; transition: all .15s; font-family: inherit; display: inline-flex; align-items: center; gap: 4px; white-space: nowrap; }
+.btn-copy:hover { background: var(--pi-purple-dim); color: var(--text-primary); border-color: var(--pi-purple); }
+.btn-copy.copied { background: var(--green-dim); color: var(--green); border-color: rgba(52,211,153,.35); }
+
+/* GENERATE BTN */
+.btn-generate { width: 100%; margin-top: 16px; padding: 14px 0; background: linear-gradient(135deg, var(--pi-purple), #5a3f8c); border: none; border-radius: 9px; cursor: pointer; font-size: 15px; font-weight: 700; color: #fff; display: flex; align-items: center; justify-content: center; gap: 8px; transition: opacity .15s, transform .1s; font-family: inherit; }
+.btn-generate:hover:not(:disabled) { opacity: .92; }
+.btn-generate:active:not(:disabled) { transform: scale(.98); }
+.btn-generate:disabled { opacity: .5; cursor: not-allowed; }
 
 /* BALANCE GRID */
 .balance-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 12px; margin-bottom: 20px; }
@@ -257,9 +390,16 @@ tbody tr:hover td { background: var(--bg-card2); }
   .balance-grid { grid-template-columns: 1fr 1fr; }
   .two-col { grid-template-columns: 1fr; }
   .form-grid { grid-template-columns: 1fr; }
+  .feature-strip { grid-template-columns: repeat(2,1fr); }
+  .links-create-grid { grid-template-columns: 1fr; }
+  .links-preview-card { min-height: auto; padding: 20px 16px; }
+  .invoice-stats-grid { grid-template-columns: repeat(2,1fr); }
+  .invoice-create-grid { grid-template-columns: 1fr; }
+  .invoice-preview-card { min-height: auto; padding: 20px 16px; }
+  .invoice-benefits { grid-template-columns: repeat(2,1fr); }
   .page { padding: 16px; }
   .topbar { padding: 0 14px; gap: 8px; }
-  .topbar-title { font-size: 13px; }
+  .topbar-title { font-size: 13px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
   .topbar-right { gap: 6px; }
   .network-pill { font-size: 10px; padding: 4px 8px; }
   .btn { padding: 6px 12px; font-size: 12px; }
@@ -269,8 +409,42 @@ tbody tr:hover td { background: var(--bg-card2); }
   .sidebar.collapsed { width: 0; overflow: hidden; border: none; box-shadow: none; }
   .sidebar:not(.collapsed) + .sidebar-backdrop { display: block; }
   .sidebar-backdrop { display: none; }
-  .sidebar-toggle { display: flex; position: relative; z-index: 51; }
+  .sidebar-toggle { display: flex; flex-shrink: 0; }
   .balance-grid { grid-template-columns: 1fr; }
+  .feature-strip { grid-template-columns: 1fr; }
+  .links-create-grid { grid-template-columns: 1fr; }
+  .links-table-row { flex-wrap: wrap; gap: 6px; padding: 10px 12px; }
+  .links-table-col-url { width: 100%; flex: none; order: 0; }
+  .links-table-col-amount { width: auto; order: 1; }
+  .links-table-col-memo { width: auto; flex: 1; min-width: 0; order: 2; }
+  .links-table-col-date { width: 100%; flex: none; order: 3; font-size: 10px; }
+  .links-table-col-actions { width: 100%; flex: none; order: 4; justify-content: flex-end; }
+  .links-section-header { flex-direction: column; align-items: stretch; }
+  .links-search { width: 100%; }
+  .links-presets { grid-template-columns: repeat(5,1fr); }
+  .links-preview-card { min-height: auto; padding: 16px; }
+  .links-preview-amount { font-size: 22px; }
+  .links-amount-field { font-size: 22px; }
+  .links-amount-sym { font-size: 24px; }
+  .links-amount-wrap { padding: 0 10px; }
+  .invoice-stats-grid { grid-template-columns: repeat(2,1fr); }
+  .invoice-create-grid { grid-template-columns: 1fr; }
+  .invoice-form-inner { grid-template-columns: 1fr; }
+  .invoice-preview-card { min-height: auto; padding: 16px; }
+  .invoice-preview-amount { font-size: 22px; }
+  .invoice-benefits { grid-template-columns: 1fr; }
+  .invoice-table-row { flex-wrap: wrap; gap: 6px; padding: 10px 12px; }
+  .invoice-table-col-id { width: auto; flex: 1; }
+  .invoice-table-col-client { width: 100%; flex: none; }
+  .invoice-table-col-amount { width: auto; }
+  .invoice-table-col-memo { width: 100%; flex: none; }
+  .invoice-table-col-due { width: 100%; flex: none; }
+  .invoice-table-col-created { width: 100%; flex: none; font-size: 10px; }
+  .invoice-table-col-status { width: auto; }
+  .invoice-table-col-actions { width: 100%; flex: none; justify-content: flex-end; }
+  .invoice-section-header { flex-direction: column; align-items: stretch; }
+  .invoice-search { width: 100%; }
+  .invoice-tabs { overflow-x: auto; }
   .page { padding: 12px; }
   .topbar { padding: 0 10px; height: 48px; gap: 6px; }
   .page-header { margin-bottom: 12px; }
@@ -335,8 +509,8 @@ tbody tr:hover td { background: var(--bg-card2); }
 
 <div class="main">
   <div class="topbar">
-    <span class="topbar-title" id="pageTitle">Send Pi</span>
     <button class="sidebar-toggle" id="sidebarToggle" onclick="toggleSidebar()" title="Toggle menu">☰</button>
+    <span class="topbar-title" id="pageTitle">Send Pi</span>
     <div class="topbar-right">
       <div class="network-pill" id="networkPill" onclick="toggleSandbox()">
         <div class="dot dot-green" id="netDot"></div>
@@ -455,36 +629,196 @@ tbody tr:hover td { background: var(--bg-card2); }
 
     <!-- PAYMENT LINKS -->
     <div class="page-panel" id="panel-links">
-      <div class="page-header"><div><div class="page-title">🔗 Payment Links</div><div class="page-sub">Create shareable Pi payment links for quick transfers</div></div></div>
-      <div class="card">
-        <div class="card-title">Create Payment Link</div>
-        <div class="form-grid">
-          <div class="form-group"><label>Amount (π)</label><input class="input" id="l-amount" type="number" value="1.00" min="0.01" step="0.01" /></div>
-          <div class="form-group"><label>Memo</label><input class="input" id="l-memo" placeholder="What's this payment for?" /></div>
-          <div class="form-group"><label>Recipient (optional)</label><input class="input" id="l-recipient" placeholder="Pre-fill recipient username" /></div>
-          <div class="form-group" style="display:flex;align-items:flex-end"><button class="btn btn-primary" style="width:100%" onclick="createPaymentLink()">🔗 Generate Link</button></div>
+      <div class="page-header">
+        <div>
+          <div class="page-title">🔗 Payment Links</div>
+          <div class="page-sub">Create shareable Pi payment links for quick transfers</div>
         </div>
       </div>
+
+      <!-- FEATURE STRIP -->
+      <div class="feature-strip">
+        <div class="feature-card">
+          <div class="feature-card-icon">⚡</div>
+          <div class="feature-card-info">
+            <div class="feature-card-title">Instant Payments</div>
+            <div class="feature-card-desc">Get paid in Pi instantly</div>
+          </div>
+        </div>
+        <div class="feature-card">
+          <div class="feature-card-icon">📤</div>
+          <div class="feature-card-info">
+            <div class="feature-card-title">Easy to Share</div>
+            <div class="feature-card-desc">Share via link or clipboard</div>
+          </div>
+        </div>
+        <div class="feature-card">
+          <div class="feature-card-icon">🔐</div>
+          <div class="feature-card-info">
+            <div class="feature-card-title">Secure & Trusted</div>
+            <div class="feature-card-desc">Payments secured on-chain</div>
+          </div>
+        </div>
+        <div class="feature-card">
+          <div class="feature-card-icon">📋</div>
+          <div class="feature-card-info">
+            <div class="feature-card-title">Track & Manage</div>
+            <div class="feature-card-desc">Manage your payment links</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- CREATE + PREVIEW -->
       <div class="card">
-        <div class="card-title" style="margin-bottom:14px">Your Links</div>
+        <div class="card-title">Create New Payment Link</div>
+        <div class="links-create-grid">
+          <!-- LEFT: FORM -->
+          <div>
+            <div class="form-group">
+              <label>Amount (π)</label>
+              <div class="links-amount-wrap">
+                <span class="links-amount-sym">π</span>
+                <input class="links-amount-field" id="l-amount" type="number" value="1.00" min="0.01" step="0.01" placeholder="0.00" oninput="clearLinkPresets();updateLinkPreview()" />
+              </div>
+              <div class="links-presets">
+                <button class="links-preset-btn" onclick="setLinkPreset(0.10,event)">0.10 π</button>
+                <button class="links-preset-btn active" onclick="setLinkPreset(1,event)">1 π</button>
+                <button class="links-preset-btn" onclick="setLinkPreset(10,event)">10 π</button>
+                <button class="links-preset-btn" onclick="setLinkPreset(100,event)">100 π</button>
+                <button class="links-preset-btn" onclick="setLinkPreset(null,event)">Custom</button>
+              </div>
+            </div>
+            <div class="form-group"><label>Memo (optional)</label><input class="input" id="l-memo" placeholder="What's this payment for?" oninput="updateLinkPreview()" /></div>
+            <div class="form-group"><label>Recipient (optional)</label><input class="input" id="l-recipient" placeholder="Pre-fill recipient username" oninput="updateLinkPreview()" /></div>
+            <button class="btn-generate" id="generateBtn" onclick="createPaymentLink()">🔗 Generate Payment Link</button>
+          </div>
+
+          <!-- RIGHT: LIVE PREVIEW -->
+          <div class="links-preview-card" id="linkPreview">
+            <div class="links-preview-icon">🔗</div>
+            <div class="links-preview-label">Payment Link Preview</div>
+            <div class="links-preview-amount"><span id="previewAmount">1.00</span> <span class="links-preview-pi">π</span></div>
+            <div class="links-preview-memo" id="previewMemo" style="display:none"></div>
+            <div class="links-preview-recipient" id="previewRecipient" style="display:none"></div>
+            <div class="links-preview-placeholder" id="previewPlaceholder">Fill the form to see a live preview</div>
+            <div class="links-preview-url" id="previewUrl" style="display:none"></div>
+            <div class="links-preview-actions" id="previewActions" style="display:none">
+              <button class="btn btn-sm" onclick="copyLinkFromPreview()">📋 Copy</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- YOUR LINKS -->
+      <div class="card">
+        <div class="links-section-header">
+          <span class="links-section-name">Your Payment Links<span class="links-section-count" id="linksCount"></span></span>
+          <input class="links-search" id="linksSearch" placeholder="Search links…" oninput="renderLinks()" />
+        </div>
         <div id="linksList"></div>
       </div>
     </div>
 
     <!-- INVOICES -->
     <div class="page-panel" id="panel-invoices">
-      <div class="page-header"><div><div class="page-title">🧾 Invoices</div><div class="page-sub">Create and manage Pi payment invoices</div></div></div>
-      <div class="card">
-        <div class="card-title">New Invoice</div>
-        <div class="form-grid">
-          <div class="form-group"><label>Client (Pi username)</label><input class="input" id="i-client" placeholder="@client_username" /></div>
-          <div class="form-group"><label>Amount (π)</label><input class="input" id="i-amount" type="number" value="100.00" min="0.01" step="0.01" /></div>
-          <div class="form-group"><label>Description</label><input class="input" id="i-desc" placeholder="Web development, consulting…" /></div>
-          <div class="form-group"><label>Due Date</label><input class="input" id="i-due" type="date" /></div>
+      <div class="page-header">
+        <div>
+          <div class="page-title">🧾 Invoices</div>
+          <div class="page-sub">Create and manage Pi payment invoices</div>
         </div>
-        <button class="btn btn-primary" onclick="createInvoice()">📝 Create Invoice</button>
       </div>
-      <div class="card"><div class="card-title">Invoices</div><div id="invoicesList"></div></div>
+
+      <!-- STATS ROW -->
+      <div class="invoice-stats-grid" id="invoiceStats"></div>
+
+      <!-- CREATE + PREVIEW -->
+      <div class="card">
+        <div class="card-title">Create New Invoice</div>
+        <div class="invoice-create-grid">
+          <!-- LEFT: FORM -->
+          <div>
+            <div class="invoice-form-inner">
+              <div class="form-group">
+                <label>Client (Pi username)</label>
+                <input class="input" id="i-client" placeholder="@client_username" oninput="updateInvoicePreview()" />
+              </div>
+              <div class="form-group">
+                <label>Amount (π)</label>
+                <input class="input" id="i-amount" type="number" value="100.00" min="0.01" step="0.01" placeholder="0.00" oninput="updateInvoicePreview()" />
+              </div>
+              <div class="form-group">
+                <label>Description</label>
+                <input class="input" id="i-desc" placeholder="What is this invoice for?" oninput="updateInvoicePreview()" />
+              </div>
+              <div class="form-group">
+                <label>Due Date (MM/DD/YYYY)</label>
+                <input class="input" id="i-due" type="text" placeholder="MM/DD/YYYY" oninput="updateInvoicePreview()" />
+              </div>
+            </div>
+            <button class="btn-generate" id="invoiceBtn" onclick="createInvoice()">📝 Create Invoice</button>
+          </div>
+
+          <!-- RIGHT: PREVIEW -->
+          <div class="invoice-preview-card" id="invoicePreview">
+            <div class="invoice-preview-icon">📄</div>
+            <div class="invoice-preview-label">Invoice Preview</div>
+            <div class="invoice-preview-amount"><span id="invPreviewAmount">100.00</span> <span class="invoice-preview-pi">π</span></div>
+            <div class="invoice-preview-field" id="invPreviewClient" style="display:none"><div class="invoice-preview-field-label">To</div><span id="invPreviewClientName"></span></div>
+            <div class="invoice-preview-field" id="invPreviewDesc" style="display:none"><div class="invoice-preview-field-label">Description</div><span id="invPreviewDescText"></span></div>
+            <div class="invoice-preview-field" id="invPreviewDue" style="display:none"><div class="invoice-preview-field-label">Due Date</div><span id="invPreviewDueText"></span></div>
+            <div class="invoice-preview-placeholder" id="invPreviewPlaceholder">Fill the form to see a live preview</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- YOUR INVOICES -->
+      <div class="card">
+        <div class="invoice-section-header">
+          <span class="invoice-section-name">Your Invoices<span class="invoice-section-count" id="invoicesCount"></span></span>
+          <div class="invoice-tabs" id="invoiceTabs">
+            <button class="invoice-tab active" onclick="setInvoiceTab('all',this)">All</button>
+            <button class="invoice-tab" onclick="setInvoiceTab('paid',this)">Paid</button>
+            <button class="invoice-tab" onclick="setInvoiceTab('pending',this)">Pending</button>
+            <button class="invoice-tab" onclick="setInvoiceTab('overdue',this)">Overdue</button>
+          </div>
+          <div class="invoice-search-row">
+            <input class="invoice-search" id="invoiceSearch" placeholder="Search invoices…" oninput="renderInvoices()" />
+          </div>
+        </div>
+        <div id="invoicesList"></div>
+      </div>
+
+      <!-- BENEFITS -->
+      <div class="invoice-benefits">
+        <div class="invoice-benefit-card">
+          <div class="invoice-benefit-icon">📄</div>
+          <div class="invoice-benefit-info">
+            <div class="invoice-benefit-title">Professional Invoicing</div>
+            <div class="invoice-benefit-desc">Create invoices in seconds</div>
+          </div>
+        </div>
+        <div class="invoice-benefit-card">
+          <div class="invoice-benefit-icon">💳</div>
+          <div class="invoice-benefit-info">
+            <div class="invoice-benefit-title">Flexible Payments</div>
+            <div class="invoice-benefit-desc">Clients pay via Pi Network</div>
+          </div>
+        </div>
+        <div class="invoice-benefit-card">
+          <div class="invoice-benefit-icon">📊</div>
+          <div class="invoice-benefit-info">
+            <div class="invoice-benefit-title">Track & Manage</div>
+            <div class="invoice-benefit-desc">Monitor invoice statuses</div>
+          </div>
+        </div>
+        <div class="invoice-benefit-card">
+          <div class="invoice-benefit-icon">🔒</div>
+          <div class="invoice-benefit-info">
+            <div class="invoice-benefit-title">Secure & On-Chain</div>
+            <div class="invoice-benefit-desc">Built on the Pi Network</div>
+          </div>
+        </div>
+      </div>
     </div>
 
     <!-- BALANCE -->
@@ -518,7 +852,7 @@ tbody tr:hover td { background: var(--bg-card2); }
           <div class="form-group"><label>Recipient</label><input class="input" id="sc-recipient" placeholder="@username" /></div>
           <div class="form-group"><label>Amount (π)</label><input class="input" id="sc-amount" type="number" placeholder="0.00" min="0.01" step="0.01" /></div>
           <div class="form-group"><label>Frequency</label><select class="input" id="sc-freq"><option>Weekly</option><option>Bi-weekly</option><option selected>Monthly</option><option>Quarterly</option><option>Yearly</option></select></div>
-          <div class="form-group"><label>First Payment</label><input class="input" id="sc-date" type="date" /></div>
+          <div class="form-group"><label>First Payment (MM/DD/YYYY)</label><input class="input" id="sc-date" type="text" placeholder="MM/DD/YYYY" /></div>
           <div class="form-group"><label>Memo</label><input class="input" id="sc-memo" placeholder="Monthly salary…" /></div>
           <div class="form-group"><label>Category</label><select class="input" id="sc-category"><option>Salary</option><option>Freelance</option><option>Subscription</option><option>Other</option></select></div>
         </div>
@@ -888,80 +1222,376 @@ async function processNextInQueue() {
 function clearQueue() { paymentQueue = []; saveState(); renderQueue(); showToast('Cleared', 'Queue cleared.'); }
 
 /* ─── LINKS ──────────────────────────────────────────── */
+
+function setLinkPreset(amount, e) {
+  document.querySelectorAll('#panel-links .links-preset-btn').forEach(b => b.classList.remove('active'));
+  if (amount !== null) {
+    e && e.target && e.target.classList.add('active');
+    document.getElementById('l-amount').value = amount.toFixed(2);
+  } else {
+    e && e.target && e.target.classList.add('active');
+  }
+  updateLinkPreview();
+}
+
+function clearLinkPresets() {
+  document.querySelectorAll('#panel-links .links-preset-btn').forEach(b => {
+    b.classList.toggle('active', false);
+  });
+}
+
+function updateLinkPreview() {
+  var amt = parseFloat(document.getElementById('l-amount').value) || 1;
+  var memo = document.getElementById('l-memo').value.trim();
+  var rec = document.getElementById('l-recipient').value.trim();
+
+  document.getElementById('previewAmount').textContent = amt.toFixed(2);
+
+  var memoEl = document.getElementById('previewMemo');
+  if (memo) { memoEl.style.display = 'block'; memoEl.textContent = memo; }
+  else { memoEl.style.display = 'none'; }
+
+  var recEl = document.getElementById('previewRecipient');
+  if (rec) { recEl.style.display = 'block'; recEl.textContent = 'To: @' + rec.replace(/^@/, ''); }
+  else { recEl.style.display = 'none'; }
+
+  document.getElementById('previewUrl').style.display = 'none';
+  document.getElementById('previewActions').style.display = 'none';
+  document.getElementById('previewPlaceholder').style.display = 'block';
+}
+
+function copyLinkFromPreview() {
+  var url = document.getElementById('previewUrl').textContent;
+  if (!url) return;
+  navigator.clipboard.writeText(url).then(function() { showToast('Copied!', 'Link copied to clipboard'); });
+}
+
+function copyLinkUrl(el) {
+  var url = el.getAttribute('data-url');
+  if (!url) return;
+  navigator.clipboard.writeText(url).then(function() {
+    el.classList.add('copied');
+    el.innerHTML = '&#10003; Copied';
+    setTimeout(function() { el.classList.remove('copied'); el.innerHTML = '&#128203; Copy'; }, 2000);
+  });
+}
+
 function createPaymentLink() {
-  const amt = parseFloat(document.getElementById('l-amount').value) || 1;
-  const memo = document.getElementById('l-memo').value.trim() || 'Pi payment';
-  const rec = document.getElementById('l-recipient').value.trim();
-  const id = Math.random().toString(36).slice(2,10);
-  const link = {
-    id, amount: amt, memo, recipient: rec,
-    url: `https://pioneerpix.pages.dev/pay/${id}?amount=${amt}&memo=${encodeURIComponent(memo)}${rec ? '&to=' + encodeURIComponent(rec) : ''}`,
-    created: new Date().toISOString(), clicks: 0
-  };
-  paymentLinks.unshift(link);
-  document.getElementById('l-amount').value = '1.00';
-  document.getElementById('l-memo').value = '';
-  document.getElementById('l-recipient').value = '';
-  renderLinks();
-  showToast('Link Created!', 'Share this link to receive Pi.');
+  var btn = document.getElementById('generateBtn');
+  var amt = parseFloat(document.getElementById('l-amount').value) || 1;
+  var memo = document.getElementById('l-memo').value.trim() || 'Pi payment';
+  var rec = document.getElementById('l-recipient').value.trim();
+
+  btn.disabled = true;
+  var originalHtml = btn.innerHTML;
+  btn.innerHTML = '<span class="spinner"></span> Generating…';
+
+  setTimeout(function() {
+    var id = Math.random().toString(36).slice(2,10);
+    var url = 'https://pioneerpix.pages.dev/pay/' + id + '?amount=' + amt + '&memo=' + encodeURIComponent(memo) + (rec ? '&to=' + encodeURIComponent(rec) : '');
+    var link = {
+      id: id, amount: amt, memo: memo, recipient: rec,
+      url: url, created: new Date().toISOString(), clicks: 0
+    };
+    paymentLinks.unshift(link);
+
+    document.getElementById('l-amount').value = '1.00';
+    document.getElementById('l-memo').value = '';
+    document.getElementById('l-recipient').value = '';
+
+    document.querySelectorAll('#panel-links .links-preset-btn').forEach(function(b) { b.classList.remove('active'); });
+    var secondPreset = document.querySelector('#panel-links .links-preset-btn:nth-child(2)');
+    if (secondPreset) secondPreset.classList.add('active');
+
+    updateLinkPreview();
+
+    document.getElementById('previewUrl').style.display = 'block';
+    document.getElementById('previewUrl').textContent = url;
+    document.getElementById('previewActions').style.display = 'flex';
+    document.getElementById('previewPlaceholder').style.display = 'none';
+
+    btn.disabled = false;
+    btn.innerHTML = originalHtml;
+    renderLinks();
+    showToast('Link Created!', 'Share this link to receive Pi.');
+  }, 500);
 }
 
 function renderLinks() {
-  const el = document.getElementById('linksList');
+  var el = document.getElementById('linksList');
+  var searchEl = document.getElementById('linksSearch');
+  var search = (searchEl && searchEl.value || '').toLowerCase();
+
+  var filtered = paymentLinks;
+  if (search) {
+    filtered = paymentLinks.filter(function(l) {
+      return l.memo.toLowerCase().indexOf(search) !== -1 ||
+             l.url.toLowerCase().indexOf(search) !== -1 ||
+             (l.recipient && l.recipient.toLowerCase().indexOf(search) !== -1) ||
+             String(l.amount).indexOf(search) !== -1;
+    });
+  }
+
+  var countEl = document.getElementById('linksCount');
+  if (countEl) countEl.textContent = paymentLinks.length ? '(' + paymentLinks.length + ')' : '';
+
   if (paymentLinks.length === 0) {
-    el.innerHTML = '<div class="empty-state"><div class="empty-state-icon">🔗</div><div class="empty-state-title">No payment links</div><div class="empty-state-sub">Create one above to start receiving Pi</div></div>';
+    el.innerHTML = '<div class="empty-state"><div class="empty-state-icon">&#128279;</div><div class="empty-state-title">No payment links yet</div><div class="empty-state-sub">Create your first payment link to start receiving Pi.</div><button class="btn btn-primary" style="margin-top:16px" onclick="document.getElementById(\'l-amount\').focus()">Create Your First Link</button></div>';
     return;
   }
-  el.innerHTML = paymentLinks.map(l => `<div class="link-card">
-    <div class="link-url">${l.url}</div>
-    <div class="link-row">
-      <span>π ${l.amount.toFixed(2)} · ${l.memo}${l.recipient?' · to: '+l.recipient:''}</span>
-      <div class="link-actions">
-        <button class="btn btn-sm" onclick="navigator.clipboard.writeText('${l.url}').then(()=>showToast('Copied!','Link copied to clipboard'))">📋 Copy</button>
-        <button class="btn btn-sm btn-danger" onclick="paymentLinks=paymentLinks.filter(x=>x.id!=='${l.id}');renderLinks()">✕</button>
-      </div>
-    </div>
-  </div>`).join('');
+
+  if (filtered.length === 0 && search) {
+    el.innerHTML = '<div class="empty-state"><div class="empty-state-icon">&#128269;</div><div class="empty-state-title">No links match your search</div><div class="empty-state-sub">Try a different search term.</div></div>';
+    return;
+  }
+
+  var rowsHtml = '';
+  for (var i = 0; i < filtered.length; i++) {
+    var l = filtered[i];
+    var d = new Date(l.created);
+    var dateStr = d.toLocaleDateString('en-US', { month:'short', day:'numeric', year:'2-digit' }) + ' ' + d.toLocaleTimeString('en-US', { hour:'2-digit', minute:'2-digit' });
+    rowsHtml += '<div class="links-table-row">'
+      + '<div class="links-table-col links-table-col-url" title="' + l.url.replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;') + '">' + l.url.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;') + '</div>'
+      + '<div class="links-table-col links-table-col-amount">&#120587; ' + l.amount.toFixed(2) + '</div>'
+      + '<div class="links-table-col links-table-col-memo" title="' + l.memo.replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;') + (l.recipient ? ' · @' + l.recipient.replace(/^@/, '') : '') + '">' + l.memo.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;') + (l.recipient ? ' <span style="font-size:10px;color:var(--text-muted)">· @' + l.recipient.replace(/^@/, '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;') + '</span>' : '') + '</div>'
+      + '<div class="links-table-col links-table-col-date">' + dateStr + '</div>'
+      + '<div class="links-table-col links-table-col-actions">'
+      + '<button class="btn-copy" data-url="' + l.url.replace(/&/g,'&amp;').replace(/"/g,'&quot;') + '" onclick="copyLinkUrl(this)">&#128203; Copy</button>'
+      + '<button class="btn btn-sm btn-danger" onclick="paymentLinks=paymentLinks.filter(function(x){return x.id!==\'' + l.id + '\'});renderLinks();updateLinkPreview()">&#10005;</button>'
+      + '</div>'
+      + '</div>';
+  }
+
+  el.innerHTML = '<div class="links-table">' + rowsHtml + '</div>';
 }
 
 /* ─── INVOICES ───────────────────────────────────────── */
-function createInvoice() {
-  const client = document.getElementById('i-client').value.trim();
-  const amt = parseFloat(document.getElementById('i-amount').value);
-  const desc = document.getElementById('i-desc').value.trim();
-  const due = document.getElementById('i-due').value;
-  if (!client || !amt || amt <= 0) { showToast('Invalid', 'Enter client and amount.', true); return; }
-  invoices.unshift({
-    id: 'INV-' + Date.now().toString(36).toUpperCase(), client, amount: amt, description: desc || 'Services',
-    due: due || 'N/A', status: 'pending', created: new Date().toISOString()
-  });
-  document.getElementById('i-client').value = '';
-  document.getElementById('i-amount').value = '100.00';
-  document.getElementById('i-desc').value = '';
-  document.getElementById('i-due').value = '';
+
+var invoiceTab = 'all';
+
+function formatDateUS(dateStr) {
+  if (!dateStr || dateStr === 'N/A') return 'N/A';
+  var parts = dateStr.split('-');
+  if (parts.length === 3) return parts[1] + '/' + parts[2] + '/' + parts[0];
+  return dateStr;
+}
+
+function isInvoiceOverdue(inv) {
+  if (inv.status !== 'pending' || inv.due === 'N/A' || !inv.due) return false;
+  var today = new Date();
+  today.setHours(0,0,0,0);
+  var dueDate = new Date(inv.due + 'T00:00:00');
+  return dueDate < today;
+}
+
+function renderInvoiceStats() {
+  var total = invoices.length;
+  var paid = invoices.filter(function(i) { return i.status === 'paid'; }).length;
+  var pending = invoices.filter(function(i) { return i.status === 'pending' && !isInvoiceOverdue(i); }).length;
+  var overdue = invoices.filter(function(i) { return isInvoiceOverdue(i); }).length;
+
+  var pctPaid = total ? Math.round(paid / total * 100) : 0;
+  var pctPending = total ? Math.round(pending / total * 100) : 0;
+  var pctOverdue = total ? Math.round(overdue / total * 100) : 0;
+
+  var el = document.getElementById('invoiceStats');
+  if (!el) return;
+  el.innerHTML =
+    '<div class="invoice-stat-card">'
+    + '<div class="invoice-stat-icon">📄</div>'
+    + '<div>'
+    + '<div class="invoice-stat-label">Total Invoices</div>'
+    + '<div class="invoice-stat-value">' + total + '</div>'
+    + '<div class="invoice-stat-sub">All time</div>'
+    + '</div></div>'
+    + '<div class="invoice-stat-card">'
+    + '<div class="invoice-stat-icon">✅</div>'
+    + '<div>'
+    + '<div class="invoice-stat-label">Paid Invoices</div>'
+    + '<div class="invoice-stat-value">' + paid + '</div>'
+    + '<div class="invoice-stat-sub">' + pctPaid + '% of total</div>'
+    + '</div></div>'
+    + '<div class="invoice-stat-card">'
+    + '<div class="invoice-stat-icon">⏱</div>'
+    + '<div>'
+    + '<div class="invoice-stat-label">Pending</div>'
+    + '<div class="invoice-stat-value">' + pending + '</div>'
+    + '<div class="invoice-stat-sub">' + pctPending + '% of total</div>'
+    + '</div></div>'
+    + '<div class="invoice-stat-card">'
+    + '<div class="invoice-stat-icon">⚠️</div>'
+    + '<div>'
+    + '<div class="invoice-stat-label">Overdue</div>'
+    + '<div class="invoice-stat-value">' + overdue + '</div>'
+    + '<div class="invoice-stat-sub">' + pctOverdue + '% of total</div>'
+    + '</div></div>';
+}
+
+function updateInvoicePreview() {
+  var amt = parseFloat(document.getElementById('i-amount').value) || 0;
+  var client = document.getElementById('i-client').value.trim();
+  var desc = document.getElementById('i-desc').value.trim();
+  var due = document.getElementById('i-due').value;
+
+  document.getElementById('invPreviewAmount').textContent = amt.toFixed(2);
+
+  var clientEl = document.getElementById('invPreviewClient');
+  if (client) { clientEl.style.display = 'block'; document.getElementById('invPreviewClientName').textContent = '@' + client.replace(/^@/, ''); }
+  else { clientEl.style.display = 'none'; }
+
+  var descEl = document.getElementById('invPreviewDesc');
+  if (desc) { descEl.style.display = 'block'; document.getElementById('invPreviewDescText').textContent = desc; }
+  else { descEl.style.display = 'none'; }
+
+  var dueEl = document.getElementById('invPreviewDue');
+  if (due) { dueEl.style.display = 'block'; document.getElementById('invPreviewDueText').textContent = due; }
+  else { dueEl.style.display = 'none'; }
+}
+
+function setInvoiceTab(tab, el) {
+  invoiceTab = tab;
+  var tabs = document.querySelectorAll('#invoiceTabs .invoice-tab');
+  for (var i = 0; i < tabs.length; i++) tabs[i].classList.remove('active');
+  if (el) el.classList.add('active');
   renderInvoices();
-  showToast('Invoice Created', `INV for ${amt} π sent to ${client}.`);
+}
+
+function deleteInvoice(id) {
+  invoices = invoices.filter(function(x) { return x.id !== id; });
+  renderInvoices();
+  renderInvoiceStats();
+  showToast('Deleted', 'Invoice removed.');
+}
+
+function markInvoicePaid(id) {
+  for (var i = 0; i < invoices.length; i++) {
+    if (invoices[i].id === id) { invoices[i].status = 'paid'; break; }
+  }
+  renderInvoices();
+  renderInvoiceStats();
+  showToast('Marked Paid', 'Invoice marked as paid.');
+}
+
+function createInvoice() {
+  var btn = document.getElementById('invoiceBtn');
+  var client = document.getElementById('i-client').value.trim();
+  var amt = parseFloat(document.getElementById('i-amount').value);
+  var desc = document.getElementById('i-desc').value.trim();
+  var due = document.getElementById('i-due').value.trim();
+  var dueIso = '';
+  if (due) {
+    var parts = due.split('/');
+    if (parts.length === 3) {
+      var m = parseInt(parts[0], 10);
+      var d = parseInt(parts[1], 10);
+      var y = parseInt(parts[2], 10);
+      if (m >= 1 && m <= 12 && d >= 1 && d <= 31 && y >= 2000) {
+        dueIso = y + '-' + (m < 10 ? '0' : '') + m + '-' + (d < 10 ? '0' : '') + d;
+      }
+    }
+  }
+
+  if (!client || !amt || amt <= 0) { showToast('Invalid', 'Enter client and amount.', true); return; }
+
+  btn.disabled = true;
+  var originalHtml = btn.innerHTML;
+  btn.innerHTML = '<span class="spinner"></span> Creating…';
+
+  setTimeout(function() {
+    invoices.unshift({
+      id: 'INV-' + Date.now().toString(36).toUpperCase(),
+      client: client,
+      amount: amt,
+      description: desc || 'Services',
+      due: dueIso || 'N/A',
+      status: 'pending',
+      created: new Date().toISOString()
+    });
+
+    document.getElementById('i-client').value = '';
+    document.getElementById('i-amount').value = '100.00';
+    document.getElementById('i-desc').value = '';
+    document.getElementById('i-due').value = '';
+
+    updateInvoicePreview();
+    btn.disabled = false;
+    btn.innerHTML = originalHtml;
+    renderInvoices();
+    renderInvoiceStats();
+    showToast('Invoice Created', 'INV for ' + amt.toFixed(2) + ' π · ' + client);
+  }, 400);
 }
 
 function renderInvoices() {
-  const el = document.getElementById('invoicesList');
+  var el = document.getElementById('invoicesList');
+  var search = (document.getElementById('invoiceSearch')?.value || '').toLowerCase();
+
+  var filtered = invoices;
+
+  if (invoiceTab === 'paid') {
+    filtered = filtered.filter(function(i) { return i.status === 'paid'; });
+  } else if (invoiceTab === 'pending') {
+    filtered = filtered.filter(function(i) { return i.status === 'pending' && !isInvoiceOverdue(i); });
+  } else if (invoiceTab === 'overdue') {
+    filtered = filtered.filter(function(i) { return isInvoiceOverdue(i); });
+  }
+
+  if (search) {
+    filtered = filtered.filter(function(i) {
+      return i.client.toLowerCase().indexOf(search) !== -1 ||
+             i.id.toLowerCase().indexOf(search) !== -1 ||
+             i.description.toLowerCase().indexOf(search) !== -1;
+    });
+  }
+
+  var countEl = document.getElementById('invoicesCount');
+  if (countEl) countEl.textContent = invoices.length ? '(' + invoices.length + ')' : '';
+
   if (invoices.length === 0) {
-    el.innerHTML = '<div class="empty-state"><div class="empty-state-icon">🧾</div><div class="empty-state-title">No invoices</div><div class="empty-state-sub">Create your first invoice above</div></div>';
+    el.innerHTML = '<div class="empty-state"><div class="empty-state-icon">📄</div><div class="empty-state-title">No invoices yet</div><div class="empty-state-sub">Create your first invoice to start getting paid in Pi.</div><button class="btn btn-primary" style="margin-top:16px" onclick="document.getElementById(\'i-client\').focus()">Create Your First Invoice</button></div>';
     return;
   }
-  el.innerHTML = invoices.map(inv => `<div class="invoice-card">
-    <div class="invoice-left">
-      <div class="invoice-icon ${inv.status}">${inv.status==='paid'?'✅':'📝'}</div>
-      <div class="invoice-info">
-        <div class="invoice-name">${inv.id} · ${inv.client}</div>
-        <div class="invoice-meta">${inv.description} · Due: ${inv.due}</div>
-      </div>
-    </div>
-    <div class="invoice-right">
-      <div class="invoice-amount">π ${inv.amount.toFixed(2)}</div>
-      <span class="pill ${inv.status==='paid'?'pill-success':'pill-warning'}">${inv.status}</span>
-    </div>
-  </div>`).join('');
+
+  if (filtered.length === 0 && search) {
+    el.innerHTML = '<div class="empty-state"><div class="empty-state-icon">🔍</div><div class="empty-state-title">No invoices match your search</div><div class="empty-state-sub">Try a different search term.</div></div>';
+    return;
+  }
+
+  if (filtered.length === 0) {
+    var tabLabels = { paid: 'paid', pending: 'pending', overdue: 'overdue' };
+    var label = tabLabels[invoiceTab] || '';
+    el.innerHTML = '<div class="empty-state"><div class="empty-state-icon">📄</div><div class="empty-state-title">No ' + label + ' invoices</div><div class="empty-state-sub">No invoices match the current filter.</div></div>';
+    return;
+  }
+
+  var rowsHtml = '';
+  for (var i = 0; i < filtered.length; i++) {
+    var inv = filtered[i];
+    var dCreated = new Date(inv.created);
+    var createdStr = dCreated.toLocaleDateString('en-US', { month:'short', day:'numeric', year:'2-digit' });
+    var overdue = isInvoiceOverdue(inv);
+    var statusClass = inv.status === 'paid' ? 'pill-success' : (overdue ? 'pill-danger' : 'pill-warning');
+    var statusLabel = inv.status === 'paid' ? 'Paid' : (overdue ? 'Overdue' : 'Pending');
+    var iconClass = inv.status === 'paid' ? 'paid' : (overdue ? 'overdue' : 'pending');
+    var iconSymbol = inv.status === 'paid' ? '✅' : (overdue ? '⚠️' : '📝');
+    var escId = inv.id.replace(/'/g, "\\'");
+
+    rowsHtml += '<div class="invoice-table-row">'
+      + '<div class="invoice-table-col invoice-table-col-id" title="' + inv.id + '">' + inv.id + '</div>'
+      + '<div class="invoice-table-col invoice-table-col-client" title="' + inv.client + '">@' + inv.client.replace(/@/g, '') + '</div>'
+      + '<div class="invoice-table-col invoice-table-col-amount">&#120587; ' + inv.amount.toFixed(2) + '</div>'
+      + '<div class="invoice-table-col invoice-table-col-memo" title="' + inv.description.replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;') + '">' + inv.description.replace(/&/g,'&amp;').replace(/</g,'&lt;') + '</div>'
+      + '<div class="invoice-table-col invoice-table-col-due">' + formatDateUS(inv.due) + '</div>'
+      + '<div class="invoice-table-col invoice-table-col-created">' + createdStr + '</div>'
+      + '<div class="invoice-table-col invoice-table-col-status"><span class="pill ' + statusClass + '">' + statusLabel + '</span></div>'
+      + '<div class="invoice-table-col invoice-table-col-actions">'
+      + (inv.status === 'pending' ? '<button class="btn-pay" onclick="markInvoicePaid(\'' + escId + '\')">✅ Mark Paid</button>' : '')
+      + '<button class="btn btn-sm btn-danger" onclick="deleteInvoice(\'' + escId + '\')">✕</button>'
+      + '</div>'
+      + '</div>';
+  }
+
+  el.innerHTML = '<div class="invoice-table">' + rowsHtml + '</div>';
 }
 
 /* ─── SCHEDULE ────────────────────────────────────────── */
@@ -969,11 +1599,23 @@ function addSchedule() {
   const r = document.getElementById('sc-recipient').value.trim();
   const a = parseFloat(document.getElementById('sc-amount').value);
   const f = document.getElementById('sc-freq').value;
-  const d = document.getElementById('sc-date').value;
+  const d = document.getElementById('sc-date').value.trim();
+  var nextDate = d || 'TBD';
+  if (d) {
+    var parts = d.split('/');
+    if (parts.length === 3) {
+      var mm = parseInt(parts[0], 10);
+      var dd = parseInt(parts[1], 10);
+      var yyyy = parseInt(parts[2], 10);
+      if (mm >= 1 && mm <= 12 && dd >= 1 && dd <= 31 && yyyy >= 2000) {
+        nextDate = yyyy + '-' + (mm < 10 ? '0' : '') + mm + '-' + (dd < 10 ? '0' : '') + dd;
+      }
+    }
+  }
   const m = document.getElementById('sc-memo').value.trim() || '—';
   const c = document.getElementById('sc-category').value;
   if (!r || !a || a <= 0) { showToast('Invalid', 'Enter recipient and amount.', true); return; }
-  scheduledPayments.push({ id: Date.now(), recipient: r, amount: a, frequency: f, next: d || 'TBD', memo: m, category: c, active: true });
+  scheduledPayments.push({ id: Date.now(), recipient: r, amount: a, frequency: f, next: nextDate, memo: m, category: c, active: true });
   document.getElementById('sc-recipient').value = '';
   document.getElementById('sc-amount').value = '';
   document.getElementById('sc-date').value = '';
@@ -993,7 +1635,7 @@ function renderSchedule() {
     return `<div class="schedule-card">
       <div class="schedule-left">
         <div class="schedule-av">${init}</div>
-        <div><div class="schedule-name">${s.recipient}</div><div class="schedule-info">${s.frequency} · ${s.memo} · next: ${s.next}</div></div>
+        <div><div class="schedule-name">${s.recipient}</div><div class="schedule-info">${s.frequency} · ${s.memo} · next: ${formatDateUS(s.next)}</div></div>
       </div>
       <div class="schedule-right">
         <span class="schedule-amount">π ${s.amount.toFixed(2)}</span>
@@ -1158,7 +1800,10 @@ window.addEventListener('DOMContentLoaded', () => {
   renderQueue();
   renderHistory();
   renderLinks();
+  updateLinkPreview();
   renderInvoices();
+  renderInvoiceStats();
+  updateInvoicePreview();
   renderSchedule();
   renderBatch();
   if (!isPiBrowser() || typeof window.Pi === 'undefined') {
